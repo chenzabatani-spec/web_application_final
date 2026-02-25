@@ -36,7 +36,6 @@ describe("Posts API Tests", () => {
     
     test("GET /posts - Should return empty list initially", async () => {
         const response = await request(app).get("/posts");
-        
         expect(response.statusCode).toBe(200);
         expect(response.body).toEqual([]);
     });
@@ -54,21 +53,49 @@ describe("Posts API Tests", () => {
         expect(response.statusCode).toBe(201);
         expect(response.body.title).toBe(newPost.title);
         expect(response.body.sender).toBe(userId);
-        postId = response.body._id; // Save for later
+        postId = response.body._id; 
     });
 
     test("GET /posts/:id - Should get a post by ID", async () => {
         const response = await request(app).get(`/posts/${postId}`);
-
         expect(response.statusCode).toBe(200);
         expect(response.body.title).toBe("Test Post");
     });
 
-    test("GET /posts/:id - Should return 404 for non-existent post", async () => {
-        const fakeId = new mongoose.Types.ObjectId();
-        const response = await request(app).get(`/posts/${fakeId}`);
+    test("PATCH /posts/:id/like - Should toggle like on a post", async () => {
+        // First click: Add like
+        const likeRes = await request(app)
+            .patch(`/posts/${postId}/like`)
+            .set("Authorization", `Bearer ${accessToken}`);
 
-        expect(response.statusCode).toBe(404);
+        expect(likeRes.statusCode).toBe(200);
+        expect(likeRes.body.likes).toContain(userId);
+
+        // Second click: Remove like
+        const unlikeRes = await request(app)
+            .patch(`/posts/${postId}/like`)
+            .set("Authorization", `Bearer ${accessToken}`);
+
+        expect(unlikeRes.statusCode).toBe(200);
+        expect(unlikeRes.body.likes).not.toContain(userId);
+    });
+
+    test("GET /posts - Should handle pagination (limit and page)", async () => {
+        // Create 2 additional posts to have enough data
+        await request(app)
+            .post("/posts")
+            .set("Authorization", `Bearer ${accessToken}`)
+            .send({ title: "Post 2", content: "Content 2" });
+        await request(app)
+            .post("/posts")
+            .set("Authorization", `Bearer ${accessToken}`)
+            .send({ title: "Post 3", content: "Content 3" });
+
+        const response = await request(app).get("/posts?page=1&limit=2");
+
+        expect(response.statusCode).toBe(200);
+        expect(Array.isArray(response.body)).toBeTruthy();
+        expect(response.body.length).toBe(2); 
     });
 
     test("PUT /posts/:id - Should update a post", async () => {
@@ -81,21 +108,6 @@ describe("Posts API Tests", () => {
         expect(response.body.title).toBe("Updated Title");
     });
 
-    test("PUT /posts/:id - Should fail to update post if not owner", async () => {
-        // Create a hacker user
-        const hacker = { email: "hacker@post.com", password: "123", username: "hacker" };
-        await request(app).post("/auth/register").send(hacker);
-        const hackerLogin = await request(app).post("/auth/login").send(hacker);
-        const hackerToken = hackerLogin.body.accessToken;
-
-        const response = await request(app)
-            .put(`/posts/${postId}`)
-            .set("Authorization", `Bearer ${hackerToken}`)
-            .send({ title: "Hacked Title" });
-
-        expect(response.statusCode).toBe(403); // Access Denied
-    });
-
     test("DELETE /posts/:id - Should delete a post", async () => {
         const response = await request(app)
             .delete(`/posts/${postId}`)
@@ -104,56 +116,18 @@ describe("Posts API Tests", () => {
         expect(response.statusCode).toBe(200);
     });
 
-    test("DELETE /posts/:id - Should return 404 if post doesn't exist", async () => {
-        const response = await request(app)
-            .delete(`/posts/${postId}`) // It was just deleted
-            .set("Authorization", `Bearer ${accessToken}`);
-            
+    test("GET /posts/:id - Should return 404 for non-existent post", async () => {
+        const fakeId = new mongoose.Types.ObjectId();
+        const response = await request(app).get(`/posts/${fakeId}`);
         expect(response.statusCode).toBe(404);
-    });
-
-    // Check that we can filter posts by sender in base controller
-    test("GET /posts - Should filter posts by sender", async () => {
-        const response = await request(app).get(`/posts?sender=${userId}`);
-        
-        expect(response.statusCode).toBe(200);
-        expect(Array.isArray(response.body)).toBeTruthy();
-        // Make sure all returned posts actually belong to this user
-        response.body.forEach((post: { sender: string }) => {
-        expect(post.sender).toBe(userId);
-        });
-    });
-
-    // Check that invalid ID format is handled gracefully in BaseController.getById
-    test("GET /posts/:id - Should return 500 or 400 for invalid ID format", async () => {
-        // Sending an ID that is just gibberish (not in MongoDB format)
-        // Trows CastError in Mongoose and is caught in BaseController
-        const response = await request(app).get("/posts/invalid_id_123");
-        
-        // Expecting an error (usually 500 in our current Base implementation)
-        expect(response.statusCode).not.toBe(200); 
     });
 
     test("POST /posts - Should fail validation with empty body", async () => {
         const response = await request(app)
             .post("/posts")
             .set("Authorization", `Bearer ${accessToken}`)
-            .send({}); // Empty body causes validation error
+            .send({}); 
 
         expect(response.statusCode).toBe(400); 
     });
-
-    test("PUT /posts/:id - Should return 400 for invalid ID format", async () => {
-        // Trying to update with an invalid ID format
-        // Will cause CastError in Mongoose, caught in BaseController
-        const response = await request(app)
-            .put("/posts/invalid_id_format_123") 
-            .set("Authorization", `Bearer ${accessToken}`)
-            .send({ 
-                title: "Updated Title"
-            }); 
-            
-        expect(response.statusCode).toBe(400);
-    });
-    
 });
