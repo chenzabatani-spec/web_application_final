@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage: storage });
+export const upload = multer({ storage: storage });
 
 router.post('/', upload.single('file'), (req, res) => {
     if (req.file) {
