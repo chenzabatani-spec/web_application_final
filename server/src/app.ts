@@ -17,7 +17,7 @@ const initApp = (): Promise<Express> => {
     const promise = new Promise<Express>((resolve) => {
         const db = mongoose.connection;
         db.on('error', (error) => console.error(error));
-        db.once('open', () => console.log('Connected to Mongo! Database name: web_app_assignment1'));
+        db.once('open', () => console.log('Connected to Mongo! Database name: web_application_final_db'));
 
         const url = process.env.DATABASE_URL;
         mongoose.connect(url as string).then(() => {

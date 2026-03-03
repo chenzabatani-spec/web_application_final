@@ -1,7 +1,8 @@
-import express from 'express';
+import express, { RequestHandler } from 'express';
 import authController from '../controllers/auth';
 import authMiddleware from '../middleware/auth_middleware';
 import { upload } from './file_routes';
+import passport from 'passport';
 
 const router = express.Router();
 
@@ -179,7 +180,7 @@ router.post('/refresh', authController.refresh);
  *       404:
  *         description: User not found
  */
-router.put("/password", authMiddleware, authController.changePassword);
+router.put("/password", authMiddleware, authController.changePassword as RequestHandler);
 
 /**
  * @swagger
@@ -210,7 +211,38 @@ router.put("/password", authMiddleware, authController.changePassword);
  *       404:
  *         description: User not found
  */
-router.get('/profile', authMiddleware, authController.getProfile);
+router.get('/profile', authMiddleware, authController.getProfile as RequestHandler);
 
+/**
+.* @swagger
+.* /auth/google:
+.*   get:
+.*     summary: Start Google OAuth login process
+.*     tags: [Auth]
+.*     description: Redirects the user to Google's consent screen.
+.*     responses:
+.*       302:
+.*         description: Redirects to Google
+.*/
+router.get('/google', passport.authenticate('google', { scope: ['profile','email']}));
+
+/**
+.* @swagger
+.* /auth/google/callback:
+.*   get:
+.*     summary: Google OAuth callback
+.*     tags: [Auth]
+.*     description: The route Google redirects to after successful authentication.
+.*     responses:
+.*       200:
+.*         description: Successfully logged in via Google, returns JWT tokens
+.*       401:
+.*         description: Google login failed
+ */
+router.get(
+    '/google/callback',
+    passport.authenticate('google', { session: false }),
+    authController.googleLogin as RequestHandler
+);
 
 export default router;
