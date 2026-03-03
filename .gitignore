@@ -1,18 +1,14 @@
-# Dependency directories
-node_modules/
-
-# Environment variables
-.env
-
-# Build output
-dist/
-
-# Test coverage
-/coverage
-
 # Logs
 npm-debug.log*
 
-# Public folder: Keep the folder, ignore the files
-public/*
-!public/.gitkeep
+# Server ignores
+server/node_modules/
+server/.env
+server/coverage
+# Server Public folder: Keep the folder, ignore the uploaded files
+server/public/*
+!server/public/.gitkeep
+
+# Client ignores
+client/node_modules/
+client/dist/
