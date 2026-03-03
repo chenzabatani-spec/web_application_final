@@ -1,7 +1,13 @@
+# Logs
+npm-debug.log*
+
 # Server ignores
 server/node_modules/
 server/.env
 server/coverage
+# Server Public folder: Keep the folder, ignore the uploaded files
+server/public/*
+!server/public/.gitkeep
 
 # Client ignores
 client/node_modules/
