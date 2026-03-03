@@ -64,12 +64,14 @@ const options = {
                     username: { type: "string", description: "The user's username" },
                     email: { type: "string", description: "The user's email" },
                     password: { type: "string", description: "The user's password" },
+                    photo: { type: "string", description: "The user's profile picture filename" }, 
                     },
                     example: {
                     _id: "809e129e1c4ae12f34567890",
                     username: "sampleuser",
                     email: "kuku@example.com",
                     password: "hashedpassword123",
+                    photo: "1712345678.jpg",
                     },
                 }
             },
