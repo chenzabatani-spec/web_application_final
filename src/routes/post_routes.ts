@@ -143,6 +143,36 @@ router.put('/:id',authMiddleware, postController.update.bind(postController));
 
 /**
  * @swagger
+ * /posts/{id}/like:
+ *   patch:
+ *     summary: Toggle like on a post
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The post ID
+ *         example: 609e129e1c4ae12f34567890
+ *     responses:
+ *       200:
+ *         description: Like toggled successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Post'
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Post not found
+ */
+router.patch('/:id/like', authMiddleware, postController.toggleLike.bind(postController));
+
+/**
+ * @swagger
  * /posts/{id}:
  *   delete:
  *     summary: Delete a post

@@ -1,6 +1,7 @@
 import express from 'express';
 import authController from '../controllers/auth';
 import authMiddleware from '../middleware/auth_middleware';
+import { upload } from './file_routes';
 
 const router = express.Router();
 
@@ -39,7 +40,7 @@ const router = express.Router();
  *       500:
  *         description: Server error
  */
-router.post('/register', authController.register);
+router.post('/register', upload.single('photo'), authController.register);
 
 /**
  * @swagger
