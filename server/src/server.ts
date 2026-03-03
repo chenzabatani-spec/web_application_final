@@ -1,5 +1,6 @@
 import initApp from './app';
 import dotenv from 'dotenv';
+import './common/passport';
 
 dotenv.config();
 

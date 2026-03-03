@@ -1,5 +1,6 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import bcrypt from 'bcrypt';
 import User from '../models/user_model';
 
 passport.use(new GoogleStrategy({
@@ -15,11 +16,17 @@ async (accessToken, refreshToken, profile, done) => {
         let user = await User.findOne({ email });
 
         if (!user) {
-            // If not, create a new user
+
+            // If not, create a new user with a random password (since they won't use it)
+            const salt = await bcrypt.genSalt(10);
+            const randomPassword = Math.random().toString(36).slice(-8) + 'Gg1!';
+            const hashedPassword = await bcrypt.hash(randomPassword, salt);
+
             user = await User.create({
                 email: email,
                 username: profile.displayName,
                 photo: profile.photos?.[0].value || '',
+                password: hashedPassword, // No password since it's OAuth
             });
         }
 
