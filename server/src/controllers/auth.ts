@@ -204,7 +204,7 @@ const googleLogin = async (req: Request, res: Response) => {
         await user.save();
 
         // Redirect to frontend with tokens and user info as query parameters
-        const frontendUrl = 'http://localhost:' + (process.env.FE_PORT);
+        const frontendUrl = process.env.FRONTEND_URL;
         res.redirect(`${frontendUrl}/?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}&_id=${user._id}&username=${encodeURIComponent(user.username)}`);
 
     } catch (err) {
