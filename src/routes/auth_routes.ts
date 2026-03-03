@@ -181,4 +181,36 @@ router.post('/refresh', authController.refresh);
  */
 router.put("/password", authMiddleware, authController.changePassword);
 
+/**
+ * @swagger
+ * /auth/profile:
+ *   get:
+ *     summary: Get logged in user profile
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User profile retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 username:
+ *                   type: string
+ *                 photo:
+ *                   type: string
+ *       401:
+ *         description: Unauthorized - missing or invalid token
+ *       404:
+ *         description: User not found
+ */
+router.get('/profile', authMiddleware, authController.getProfile);
+
+
 export default router;

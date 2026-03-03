@@ -24,7 +24,6 @@ const generateTokens = (userId: string): { accessToken: string, refreshToken: st
 }
 
 // --- Main Controllers ---
-
 const register = async (req: Request, res: Response) => {
     const { email, password, username } = req.body;
     if (!email || !password || !username) return sendError(res, "Username, Email and password are required");
@@ -42,7 +41,12 @@ const register = async (req: Request, res: Response) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
         
-        const user = await User.create({ email, password: hashedPassword, username });
+        const user = await User.create({ 
+            email, 
+            password: hashedPassword, 
+            username,
+            photo: req.file ? req.file.filename : "" // שומר את שם הקובץ מה-Multer
+        });
         
         // Auto-login after register
         const tokens = generateTokens(user._id.toString());
@@ -50,7 +54,7 @@ const register = async (req: Request, res: Response) => {
         user.refreshTokens.push(tokens.refreshToken);
         await user.save();
         
-        res.status(201).json({ ...tokens, _id: user._id, username: user.username, email: user.email });
+        res.status(201).json({ ...tokens, _id: user._id, username: user.username, email: user.email, photo: user.photo });
     } catch (err) {
         sendError(res, (err as Error).message || "Error registering user");
     }
@@ -126,6 +130,21 @@ const logout = async (req: Request, res: Response) => {
     }
 }
 
+const getProfile = async (req: AuthRequest, res: Response) => {
+    // The user ID is attached to the request by the auth_middleware
+    const userId = req.user?._id;
+
+    try {
+        const user = await User.findById(userId).select('-password -refreshTokens');
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        res.status(200).json(user);
+    } catch (err) {
+        res.status(500).json({ error: (err as Error).message });
+    }
+};
+
 const changePassword = async (req: AuthRequest, res: Response) => {
     // Extract the user ID from the verified token (set by authMiddleware)
     const userId = req.user?._id;
@@ -165,4 +184,4 @@ const changePassword = async (req: AuthRequest, res: Response) => {
     }
 };
 
-export default { register, login, refresh, logout, changePassword };
+export default { register, login, refresh, logout, changePassword, getProfile };

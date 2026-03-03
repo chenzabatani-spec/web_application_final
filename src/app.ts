@@ -30,7 +30,8 @@ const initApp = (): Promise<Express> => {
             app.use(bodyParser.json());
             app.use(bodyParser.urlencoded({ extended: true }));
             app.use('/public', express.static('public'));
-
+            app.use(express.static('public'));
+            
             // Setup Swagger
             setupSwagger(app);
 
