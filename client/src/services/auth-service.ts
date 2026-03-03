@@ -28,6 +28,22 @@ const authService = {
                 "Content-Type": "multipart/form-data",
             },
         });
+    },
+
+    login: async (credentials: { email: string; password: string }) => {
+    const response = await apiClient.post("/auth/login", credentials);
+    
+    if (response.data.accessToken) {
+        localStorage.setItem("accessToken", response.data.accessToken);
+        localStorage.setItem("refreshToken", response.data.refreshToken);
+    }
+    
+    return response.data;
+    },
+
+    getProfile: async () => {
+        const response = await apiClient.get("/auth/profile");
+        return response.data;
     }
 };
 
