@@ -214,30 +214,41 @@ router.put("/password", authMiddleware, authController.changePassword as Request
 router.get('/profile', authMiddleware, authController.getProfile as RequestHandler);
 
 /**
-.* @swagger
-.* /auth/google:
-.*   get:
-.*     summary: Start Google OAuth login process
-.*     tags: [Auth]
-.*     description: Redirects the user to Google's consent screen.
-.*     responses:
-.*       302:
-.*         description: Redirects to Google
-.*/
+ * @swagger
+ * /auth/google:
+ *   get:
+ *     summary: Start Google OAuth login process
+ *     tags: [Auth]
+ *     deprecated: true
+ *     description: |
+ *       ### ⚠️ **DO NOT USE "Try it out"**
+ *       ### 🚀 To test the Google Authentication flow, open this link in a new tab:
+ *       [http://localhost:3000/auth/google](http://localhost:3000/auth/google)
+ *       
+ *       **Note:** After successful login, Google will redirect you to the frontend URL
+ *       with `accessToken` and `refreshToken` as URL parameters.
+ *     responses:
+ *       302:
+ *         description: Redirects to Google
+ */
 router.get('/google', passport.authenticate('google', { scope: ['profile','email']}));
 
 /**
-.* @swagger
-.* /auth/google/callback:
-.*   get:
-.*     summary: Google OAuth callback
-.*     tags: [Auth]
-.*     description: The route Google redirects to after successful authentication.
-.*     responses:
-.*       200:
-.*         description: Successfully logged in via Google, returns JWT tokens
-.*       401:
-.*         description: Google login failed
+ * @swagger
+ * /auth/google/callback:
+ *   get:
+ *     summary: Google OAuth callback
+ *     tags: [Auth]
+ *     deprecated: true
+ *     description: |
+ *      ### ⚠️ **INTERNAL CALLBACK**
+ *      This route is used internally by Google OAuth and should not be called directly.
+ *      Executing it manually will result in an error.
+ *     responses:
+ *       200:
+ *         description: Successfully logged in via Google, returns JWT tokens
+ *       401:
+ *         description: Google login failed
  */
 router.get(
     '/google/callback',
