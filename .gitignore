@@ -12,3 +12,4 @@ server/public/*
 # Client ignores
 client/node_modules/
 client/dist/
+client/.env
