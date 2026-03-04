@@ -66,3 +66,75 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* --- Google Login Separator --- */
+.separator-container {
+  display: flex;
+  align-items: center;
+  margin: 24px 0;
+}
+
+.separator-line {
+  flex: 1;
+  border-bottom: 1px solid #555; /* line color for dark mode */
+}
+
+.separator-text {
+  padding: 0 15px;
+  color: #aaa; /* text color for dark mode */
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+/* modify to bright mode */
+@media (prefers-color-scheme: light) {
+  .separator-line {
+    border-bottom-color: #ccc;
+  }
+  .separator-text {
+    color: #888;
+  }
+}
+
+/* --- Official Google Sign-In Button --- */
+.btn-google-official {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  color: #3c4043;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  padding: 0 16px;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Google Sans", Roboto, Arial, sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  gap: 12px; 
+  margin-top: 16px;
+}
+
+.btn-google-official:hover {
+  background-color: #f8f9fa;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+}
+
+.btn-google-official img {
+  width: 18px;
+  height: 18px;
+}
+
+
+@media (prefers-color-scheme: dark) {
+  .btn-google-official {
+    background-color: #131314;
+    color: #e3e3e3;
+    border: 1px solid #8e918f;
+  }
+  .btn-google-official:hover {
+    background-color: #1e1e1f;
+  }
+}

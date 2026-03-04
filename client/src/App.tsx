@@ -3,6 +3,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import ProtectedRoute from "./components/ProtectedRoute";
+import GoogleCallback from './components/GoogleCallback';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
           {/* Public Routes */}
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/google-callback" element={<GoogleCallback />} />
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>

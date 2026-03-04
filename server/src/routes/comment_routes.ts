@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { RequestHandler } from 'express';
 import commentController from '../controllers/comment';
 import authMiddleware from '../middleware/auth_middleware';
 
@@ -82,7 +82,7 @@ router.get('/:id', commentController.getById.bind(commentController));
  *       500:
  *         description: Server Error
  */
-router.post('/', authMiddleware, commentController.create.bind(commentController));
+router.post('/', authMiddleware, commentController.create.bind(commentController) as RequestHandler);
 
 /**
  * @swagger

@@ -1,6 +1,7 @@
-import express from 'express';
+import express, { RequestHandler } from 'express';
 import postController from '../controllers/post';
 import authMiddleware from '../middleware/auth_middleware';
+
 
 const router = express.Router();
 
@@ -98,7 +99,7 @@ router.get('/:id', postController.getById.bind(postController));
  *       500:
  *         description: Server Error
  */
-router.post('/', authMiddleware, postController.create.bind(postController));
+router.post('/', authMiddleware, postController.create.bind(postController) as RequestHandler);
 
 /**
  * @swagger
@@ -169,7 +170,7 @@ router.put('/:id',authMiddleware, postController.update.bind(postController));
  *       404:
  *         description: Post not found
  */
-router.patch('/:id/like', authMiddleware, postController.toggleLike.bind(postController));
+router.patch('/:id/like', authMiddleware, postController.toggleLike.bind(postController) as RequestHandler);
 
 /**
  * @swagger

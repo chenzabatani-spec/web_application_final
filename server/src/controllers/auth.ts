@@ -184,4 +184,33 @@ const changePassword = async (req: AuthRequest, res: Response) => {
     }
 };
 
-export default { register, login, refresh, logout, changePassword, getProfile };
+const googleLogin = async (req: Request, res: Response) => {
+    try {
+
+        type MongoUser = {
+            _id: { toString: () => string };
+            username: string;
+            refreshTokens?: string[];
+            save: () => Promise<void>;
+        };
+
+        // Passport will handle the authentication and user creation in the strategy
+        // If we reach this point, it means authentication was successful
+        const user = req.user as MongoUser; // The user object is attached by Passport
+
+        const tokens = generateTokens(user._id.toString());
+        if (!user.refreshTokens) user.refreshTokens = [];
+        user.refreshTokens.push(tokens.refreshToken);
+        await user.save();
+
+        // Redirect to frontend with tokens and user info as query parameters
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        res.redirect(`${frontendUrl}/google-callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}&_id=${user._id}&username=${encodeURIComponent(user.username)}`);
+    } catch (err) {
+        console.error("Error in googleLogin:", err);
+        res.status(500).send("Error generating tokens during Google login");
+    }
+};
+
+
+export default { register, login, refresh, logout, changePassword, getProfile, googleLogin };
