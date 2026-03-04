@@ -58,8 +58,12 @@ const Login = () => {
         <div className="separator-line"></div>
       </div>
 
-      <button onClick={handleGoogleLogin} style={{ backgroundColor: "#4285F4", color: "white", padding: "10px", border: "none", borderRadius: "4px" }}>
-        Login with Google
+      <button type="button" onClick={handleGoogleLogin} className="btn-google-official">
+        <img 
+          src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" 
+          alt="Google logo" 
+        />
+        Sign in with Google
       </button>
 
     </div>
