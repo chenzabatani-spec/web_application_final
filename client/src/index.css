@@ -66,3 +66,32 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* --- Google Login Separator --- */
+.separator-container {
+  display: flex;
+  align-items: center;
+  margin: 24px 0;
+}
+
+.separator-line {
+  flex: 1;
+  border-bottom: 1px solid #555; /* line color for dark mode */
+}
+
+.separator-text {
+  padding: 0 15px;
+  color: #aaa; /* text color for dark mode */
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+/* modify to bright mode */
+@media (prefers-color-scheme: light) {
+  .separator-line {
+    border-bottom-color: #ccc;
+  }
+  .separator-text {
+    color: #888;
+  }
+}
