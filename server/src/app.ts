@@ -1,17 +1,17 @@
 import express, { Express } from 'express';
 import dotenv from 'dotenv';
+import path from 'path';
+dotenv.config({ path: path.join(__dirname, '../.env') });
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
+import cors from 'cors';
 import postRouter from './routes/post_routes';
 import commentRouter from './routes/comment_routes';
 import authRouter from './routes/auth_routes';
 import userRouter from './routes/user_routes';
 import { setupSwagger } from './swagger';
 import fileRouter from './routes/file_routes';
-import path from 'path';
-import cors from 'cors';
-
-dotenv.config({ path: path.join(__dirname, '../.env') });
+import aiRoutes from './routes/ai_routes';
 
 const initApp = (): Promise<Express> => {
     const promise = new Promise<Express>((resolve) => {
@@ -41,6 +41,7 @@ const initApp = (): Promise<Express> => {
             app.use('/comments', commentRouter);
             app.use('/users', userRouter);
             app.use('/file', fileRouter);
+            app.use('/ai', aiRoutes);
 
             resolve(app);
         });
