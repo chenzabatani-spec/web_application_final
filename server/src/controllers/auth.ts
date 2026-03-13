@@ -77,7 +77,13 @@ const login = async (req: Request, res: Response) => {
         user.refreshTokens.push(tokens.refreshToken);
         await user.save();
 
-        res.status(200).json({ ...tokens, _id: user._id, username: user.username });
+        res.status(200).json({ 
+            ...tokens, 
+            _id: user._id, 
+            username: user.username, 
+            email: user.email, 
+            photo: user.photo
+        });
     } catch (err) {
         sendError(res, (err as Error).message || "Error logging in");
     }

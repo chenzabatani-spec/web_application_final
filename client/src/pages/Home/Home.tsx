@@ -33,13 +33,9 @@ const Home = () => {
   };
 
   if (!user) return null;
-
-  // תיקון נתיב התמונה: 
-  // השרת שלך מגיש קבצים מתוך תיקיית public. 
-  // אם user.photo הוא "public/123.jpg", אנחנו צריכים רק את "123.jpg"
-  const imageUrl = user.photo 
-    ? `http://localhost:3000/${user.photo.replace('public/', '')}` 
-    : "";
+    const imageUrl = user?.photo 
+      ? `http://localhost:3000/public/${user.photo.split('/').pop()}` 
+      : "";
 
   return (
     <HomeRoot>
@@ -55,7 +51,8 @@ const Home = () => {
               src={imageUrl} 
               sx={{ width: 100, height: 100, border: '5px solid white', bgcolor: 'primary.light' }}
             >
-              {user.username ? user.username[0].toUpperCase() : "U"}
+              {}
+              {!imageUrl && user.username?.[0].toUpperCase()}
             </Avatar>
             <Box>
               <Typography variant="h4" fontWeight={900}>
