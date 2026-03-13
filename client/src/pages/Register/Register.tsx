@@ -55,7 +55,7 @@ const Register = () => {
   } finally {
     setLoading(false);
   }
- };
+};
 
   return (
     <PageContainer>
