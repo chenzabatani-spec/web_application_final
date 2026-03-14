@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { AuthRequest } from '../middleware/auth_middleware';
 import PostModel, { IPost } from '../models/post_model';
 import { BaseController } from './base_controller';
+import aiService from '../services/ai_service';
 
 class PostController extends BaseController<IPost> {
     constructor() {
@@ -36,12 +37,35 @@ class PostController extends BaseController<IPost> {
         // Take userId from req.user set by authMiddleware
         const userId = req.user?._id;
 
-        if (userId) {
-            // Attach userId to the post being created
-            req.body.sender = userId;
+        if (!userId) {
+            // If userId is not available, return an error response
+            res.status(401).send("Unauthorized");
+            return;
         }
 
-        return super.create(req, res);
+        // Attach the sender (userId) to the request body before creating the post
+        req.body.sender = userId; 
+
+        try {
+            // Save the new post to the database
+            const newPost = await this.model.create(req.body);
+
+            // Trigger AI processing for the post content
+            const postContent = req.body.content;
+
+            if (postContent) {
+                // Background task: We deliberately DO NOT use 'await' here.
+                // This allows the server to respond to the user immediately,
+                // while the Gemini API generates the embedding in the background.
+                aiService.processAndSaveChunk(newPost._id, postContent)
+                    .catch(err => console.error("Failed to generate AI chunk in background:", err));
+            }
+
+            // Respond to the client immediately after saving the post
+            res.status(201).send(newPost);
+        } catch (error) {
+            res.status(400).json({ message: error instanceof Error ? error.message : 'Error creating post' });
+        }
     }
 
     // method to handle like/unlike functionality

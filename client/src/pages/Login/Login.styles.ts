@@ -17,7 +17,7 @@ export const StyledLoginCard = styled(Card)(({ theme }) => ({
   width: '100%',
   maxWidth: '400px',
   boxShadow: '0 15px 50px rgba(0,0,0,0.06)',
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: (theme.shape.borderRadius as number) * 2,
 }));
 
 export const GoogleButton = styled(Button)(({ theme }) => ({
