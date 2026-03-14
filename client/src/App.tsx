@@ -1,31 +1,25 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Register from "./pages/Register";
-import Login from "./pages/Login";
-import Home from "./pages/Home";
-import ProtectedRoute from "./components/ProtectedRoute";
-import GoogleCallback from './components/GoogleCallback';
+import { ThemeProvider, CssBaseline, Box } from "@mui/material";
+import { purpleTheme } from "./theme";
+import Register from "./pages/Register/Register";
+import Login from "./pages/Login/Login";
+import Home from "./pages/Home/Home";
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/google-callback" element={<GoogleCallback />} />
-
-          {/* Protected Routes */}
-          <Route element={<ProtectedRoute />}>
+    <ThemeProvider theme={purpleTheme}>
+      <CssBaseline />
+      <Router>
+        <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+          <Routes>
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/" element={<Home />} />
-            {/* Any route added here will require a token */}
-          </Route>
-
-          {/* Fallback to login */}
-          <Route path="*" element={<Navigate to="/login" />} />
-        </Routes>
-      </div>
-    </Router>
+            <Route path="*" element={<Navigate to="/login" />} />
+          </Routes>
+        </Box>
+      </Router>
+    </ThemeProvider>
   );
 }
 
