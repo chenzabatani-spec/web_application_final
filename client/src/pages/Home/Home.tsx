@@ -7,7 +7,8 @@ import aiService, { type SearchResult } from "../../services/ai-service";
 
 interface UserProfile {
   _id?: string;
-  username: string;
+  username?: string; // Optional because Google auth might not return it
+  name?: string;     // Support for Google auth name field
   email: string;
   photo?: string;
 }
@@ -15,7 +16,7 @@ interface UserProfile {
 const Home = () => {
   const navigate = useNavigate();
 
-  // State to hold the user profile, search query, search results, loading state, and error message
+// Initialize user state from localStorage, but only once on component mount
   const [user] = useState<UserProfile | null>(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser && savedUser !== "undefined") {
@@ -34,7 +35,7 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Check if user is authenticated on component mount, and redirect to login if not
+  // Will log out the user if the user state becomes null (e.g., after logout or if localStorage is cleared)
   useEffect(() => {
     if (!user) {
       localStorage.removeItem("user");
@@ -59,8 +60,8 @@ const Home = () => {
     
     request
       .then((res) => {
-        // Filter results to only include those with a similarity score of 60% or higher before updating state
-        const filteredResults = res.data.results.filter((post: SearchResult) => post.score >= 0.60);
+        const threshold = parseFloat(import.meta.env.VITE_AI_SEARCH_THRESHOLD || "0.60");
+const filteredResults = res.data.results.filter((post: SearchResult) => post.score >= threshold);
         setSearchResults(filteredResults);
         setIsLoading(false);
       })
@@ -72,9 +73,14 @@ const Home = () => {
   };
 
   if (!user) return null;
-    const imageUrl = user?.photo 
-      ? `http://localhost:3000/public/${user.photo.split('/').pop()}` 
-      : "";
+  
+  // Determine display name: username (regular auth), name (Google auth), or fallback
+  const displayName = user.username || user.name || "Guest";
+
+  // Handle profile image: use full URL for Google auth, otherwise fetch from local server
+  const imageUrl = user?.photo 
+    ? (user.photo.startsWith('http') ? user.photo : `http://localhost:3000/public/${user.photo.split('/').pop()}`) 
+    : "";
 
   return (
     <HomeRoot>
@@ -90,12 +96,12 @@ const Home = () => {
               src={imageUrl} 
               sx={{ width: 100, height: 100, border: '5px solid white', bgcolor: 'primary.light' }}
             >
-              {}
-              {!imageUrl && user.username?.[0].toUpperCase()}
+              {/* Display the first letter of the name as a fallback if no image exists */}
+              {!imageUrl && displayName[0].toUpperCase()}
             </Avatar>
             <Box>
               <Typography variant="h4" fontWeight={900}>
-                {user.username}
+                {displayName}
               </Typography>
               <Typography sx={{ opacity: 0.8, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Mail size={16} /> {user.email}
