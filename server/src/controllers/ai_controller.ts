@@ -19,4 +19,29 @@ export const testEmbedding = async (req: Request, res: Response) => {
     }
 };
 
-export default { testEmbedding };
+export const search = async (req: Request, res: Response) => {
+    try {
+        //Extract the search query from the request body
+        const query = req.body.query;
+
+        if (!query) {
+            res.status(400).json({ error: "Missing search query" });
+            return; 
+        }
+
+        console.log(`Received search request for: ${query}`);
+
+        //Get the top 3 most similar posts based on the query text
+        const results = await aiService.searchSimilarPosts(query, 3);
+        
+        res.status(200).json({
+            message: "Search completed successfully",
+            results: results
+        });
+    } catch (error) {
+        console.error("Error in search controller:", error);
+        res.status(500).json({ error: "Failed to perform semantic search" });
+    }
+};
+
+export default { testEmbedding, search };
