@@ -12,8 +12,18 @@ const genAi = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const generateEmbedding = async (text: string): Promise<number[]> => {
     try {
+        // Read the desired vector dimensions and model name from environment variables, with defaults
+        const vectorDimensions = parseInt(process.env.AI_VECTOR_DIMENSIONS || '3072');
+        const aiModelName = process.env.AI_MODEL_NAME || 'gemini-embedding-001';
+
+        // If USE_MOCK_AI is set to true, return a made up embedding vector instead of calling the Gemini API
+        if (process.env.USE_MOCK_AI === 'true') {
+            console.log("⚠️ MOCK MODE: Skipping Gemini API call. Returning made up vector.");
+            // Return a fixed-length array of numbers as a mock embedding (e.g., 3072 dimensions for Gemini embeddings)
+            return new Array(vectorDimensions).fill(0.1); 
+        }
         // Generate embeddings for the input text using the specified model
-        const model = genAi.getGenerativeModel({ model: "gemini-embedding-001" });
+        const model = genAi.getGenerativeModel({ model: aiModelName });
 
         const response = await model.embedContent(text);
         const embedding = response.embedding;
@@ -73,13 +83,13 @@ const searchSimilarPosts = async (queryText: string, topK: number = 3) => {
     try {
         console.log(`Searching for semantic matches for: "${queryText}"`);
         
-        //Turn the user's query into an embedding vector
+        // Turn the user's query into an embedding vector
         const queryEmbedding = await generateEmbedding(queryText);
 
-        //Retrieve all chunks from the database (in a real application, consider more efficient retrieval strategies)
+        // Retrieve all chunks from the database (in a real application, consider more efficient retrieval strategies)
         const allChunks = await Chunk.find();
 
-        //Calculate cosine similarity between the query embedding and each chunk's embedding
+        // Calculate cosine similarity between the query embedding and each chunk's embedding
         const chunksWithScores = allChunks.map(chunk => {
             const score = calculateCosineSimilarity(queryEmbedding, chunk.embedding);
             return { 
@@ -89,10 +99,10 @@ const searchSimilarPosts = async (queryText: string, topK: number = 3) => {
             };
         });
 
-        //Sort the chunks by similarity score in descending order (most similar first, Top-K search)
+        // Sort the chunks by similarity score in descending order (most similar first, Top-K search)
         chunksWithScores.sort((a, b) => b.score - a.score);
 
-        //Return the top K most similar chunks
+        // Return the top K most similar chunks
         return chunksWithScores.slice(0, topK);
 
     } catch (error) {
