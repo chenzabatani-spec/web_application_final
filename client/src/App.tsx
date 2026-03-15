@@ -4,6 +4,7 @@ import { purpleTheme } from "./theme";
 import Register from "./pages/Register/Register";
 import Login from "./pages/Login/Login";
 import Home from "./pages/Home/Home";
+import GoogleCallback from "./components/GoogleCallback";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Home />} />
+            <Route path="/google-callback" element={<GoogleCallback />} />
             <Route path="*" element={<Navigate to="/login" />} />
           </Routes>
         </Box>
