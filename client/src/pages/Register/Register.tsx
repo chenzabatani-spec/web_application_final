@@ -1,12 +1,23 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from "zod";
-import { Box, Typography, TextField, Button, InputAdornment, CircularProgress, Avatar, IconButton } from "@mui/material";
+import { TextField, InputAdornment, CircularProgress } from "@mui/material";
 import { User, Mail, Lock, Camera } from "lucide-react";
 import axios from 'axios';
-import { PageContainer, RegisterCard, AvatarSection } from "./Register.styles";
+import { 
+  PageContainer, 
+  RegisterCard, 
+  AvatarSection, 
+  StyledAvatarPicker, 
+  PreviewAvatar,
+  SubmitBtn,
+  FormTitle,
+  FooterContainer,
+  FooterLink,
+  HelperText
+} from "./Register.styles";
 
 const registerSchema = z.object({
   username: z.string().min(2, "Name too short"),
@@ -14,13 +25,15 @@ const registerSchema = z.object({
   password: z.string().min(6, "Min 6 characters"),
 });
 
+type RegisterFormData = z.infer<typeof registerSchema>;
+
 const Register = () => {
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState("");
   const navigate = useNavigate();
 
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   });
 
@@ -33,56 +46,67 @@ const Register = () => {
   };
 
   const onSubmit = async (data: RegisterFormData) => {
-  setLoading(true);
-  try {
-    const formData = new FormData();
-    formData.append("username", data.username);
-    formData.append("email", data.email);
-    formData.append("password", data.password);
-    
-    if (image) {
-      formData.append("photo", image);
-    }
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("username", data.username);
+      formData.append("email", data.email);
+      formData.append("password", data.password);
+      if (image) formData.append("photo", image);
 
-    const res = await axios.post("http://localhost:3000/auth/register", formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-    
-    navigate("/login");
-  } catch (error: any) {
-    console.error("Register Error:", error.response?.data);
-    alert("Registration Failed: " + (error.response?.data?.message || "Check Server Logs"));
-  } finally {
-    setLoading(false);
-  }
-};
+      await axios.post("http://localhost:3000/auth/register", formData);
+      navigate("/login");
+    } catch (error: any) {
+      alert("Error: " + (error.response?.data?.message || "Registration failed"));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <PageContainer>
       <RegisterCard>
-        <Typography variant="h4" color="primary" fontWeight={900} sx={{ mb: 3 }}>Register</Typography>
+        <FormTitle variant="h4" color="primary">Register</FormTitle>
+
         <AvatarSection>
-            <Box sx={{ position: 'relative' }}>
-                <Avatar src={preview} sx={{ width: 100, height: 100, mb: 2 }} />
-                <input accept="image/*" type="file" id="upload-photo" style={{ display: 'none' }} onChange={handleImageChange} />
-                <label htmlFor="upload-photo">
-                    <IconButton component="span" sx={{ position: 'absolute', bottom: 5, right: -5, bgcolor: 'white' }}>
-                        <Camera size={18} />
-                    </IconButton>
-                </label>
-            </Box>
+          <input accept="image/*" type="file" id="upload-photo" style={{ display: 'none' }} onChange={handleImageChange} />
+          <label htmlFor="upload-photo">
+            <StyledAvatarPicker>
+              {preview ? <PreviewAvatar src={preview} /> : <Camera size={32} />}
+            </StyledAvatarPicker>
+          </label>
+          <HelperText variant="caption" color="textSecondary">Click to upload profile picture</HelperText>
         </AvatarSection>
+
         <form onSubmit={handleSubmit(onSubmit)}>
-          <TextField {...register("username")} fullWidth label="Full Name" margin="normal" error={!!errors.username} />
-          <TextField {...register("email")} fullWidth label="Email" margin="normal" error={!!errors.email} />
-          <TextField {...register("password")} fullWidth label="Password" type="password" margin="normal" error={!!errors.password} />
-          <Button fullWidth variant="contained" type="submit" sx={{ mt: 3 }} disabled={loading}>
+          <TextField 
+            {...register("username")} 
+            fullWidth label="Full Name" margin="normal" error={!!errors.username} helperText={errors.username?.message}
+            InputProps={{ startAdornment: <InputAdornment position="start"><User size={18} /></InputAdornment> }}
+          />
+
+          <TextField 
+            {...register("email")} 
+            fullWidth label="Email" margin="normal" error={!!errors.email} helperText={errors.email?.message}
+            InputProps={{ startAdornment: <InputAdornment position="start"><Mail size={18} /></InputAdornment> }}
+          />
+
+          <TextField 
+            {...register("password")} 
+            fullWidth label="Password" type="password" margin="normal" error={!!errors.password} helperText={errors.password?.message}
+            InputProps={{ startAdornment: <InputAdornment position="start"><Lock size={18} /></InputAdornment> }}
+          />
+
+          <SubmitBtn fullWidth variant="contained" type="submit" disabled={loading}>
             {loading ? <CircularProgress size={24} color="inherit" /> : "Sign Up"}
-          </Button>
+          </SubmitBtn>
         </form>
-        <Typography sx={{ mt: 2 }}>
-          Already have an account? <Link to="/login">Login</Link>
-        </Typography>
+
+        <FooterContainer>
+          <HelperText>
+            Already have an account? <FooterLink to="/login">Login</FooterLink>
+          </HelperText>
+        </FooterContainer>
       </RegisterCard>
     </PageContainer>
   );

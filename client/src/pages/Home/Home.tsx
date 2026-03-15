@@ -1,29 +1,37 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Container, Box, Typography, Avatar, IconButton, InputAdornment, Paper } from "@mui/material";
+import { Container, Box, Typography, IconButton, InputAdornment } from "@mui/material";
 import { LogOut, Mail, Sparkles } from "lucide-react";
-import { HomeRoot, ProfileHeader, AISearchField } from "./Home.styles";
+import { 
+  HomeRoot, 
+  ProfileHeader, 
+  HeaderActions,
+  UserInfoSection,
+  StyledAvatar,
+  AISearchField, 
+  EmptyFeedPaper 
+} from "./Home.styles";
 
 const Home = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-  const savedUser = localStorage.getItem("user");
-  
-  if (!savedUser || savedUser === "undefined") {
-    localStorage.removeItem("user"); 
-    navigate("/login");
-    return;
-  }
+    const savedUser = localStorage.getItem("user");
+    
+    if (!savedUser || savedUser === "undefined") {
+      localStorage.removeItem("user"); 
+      navigate("/login");
+      return;
+    }
 
-  try {
-    setUser(JSON.parse(savedUser));
-  } catch (e) {
-    console.error("Failed to parse user", e);
-    localStorage.removeItem("user");
-    navigate("/login");
-  }
+    try {
+      setUser(JSON.parse(savedUser));
+    } catch (e) {
+      console.error("Failed to parse user", e);
+      localStorage.removeItem("user");
+      navigate("/login");
+    }
   }, [navigate]);
 
   const handleLogout = () => {
@@ -33,27 +41,26 @@ const Home = () => {
   };
 
   if (!user) return null;
-    const imageUrl = user?.photo 
-      ? `http://localhost:3000/public/${user.photo.split('/').pop()}` 
-      : "";
+
+  const imageUrl = user?.photo 
+    ? `http://localhost:3000/public/${user.photo.split('/').pop()}` 
+    : "";
 
   return (
     <HomeRoot>
       <Container maxWidth="md" sx={{ pt: 4 }}>
         <ProfileHeader elevation={0}>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <HeaderActions>
             <IconButton onClick={handleLogout} sx={{ color: 'white' }}>
               <LogOut size={20} />
             </IconButton>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mt: -2 }}>
-            <Avatar 
-              src={imageUrl} 
-              sx={{ width: 100, height: 100, border: '5px solid white', bgcolor: 'primary.light' }}
-            >
-              {}
+          </HeaderActions>
+
+          <UserInfoSection>
+            <StyledAvatar src={imageUrl}>
               {!imageUrl && user.username?.[0].toUpperCase()}
-            </Avatar>
+            </StyledAvatar>
+            
             <Box>
               <Typography variant="h4" fontWeight={900}>
                 {user.username}
@@ -62,7 +69,7 @@ const Home = () => {
                 <Mail size={16} /> {user.email}
               </Typography>
             </Box>
-          </Box>
+          </UserInfoSection>
         </ProfileHeader>
 
         <AISearchField 
@@ -77,14 +84,14 @@ const Home = () => {
           }}
         />
         
-        <Paper sx={{ p: 5, textAlign: 'center', borderRadius: 8, border: '2px dashed #e0e0e0', bgcolor: 'rgba(255,255,255,0.5)' }}>
+        <EmptyFeedPaper>
             <Typography color="primary" variant="h6" fontWeight={700} gutterBottom>
               הפיד שלך בדרך!
             </Typography>
             <Typography color="text.secondary">
               כאן יופיעו הפוסטים מ-MongoDB אחרי שנחבר את ה-Post Controller.
             </Typography>
-        </Paper>
+        </EmptyFeedPaper>
       </Container>
     </HomeRoot>
   );
