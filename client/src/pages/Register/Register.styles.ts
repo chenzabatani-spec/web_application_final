@@ -1,6 +1,6 @@
 import { styled } from '@mui/material/styles';
-import { Box, Card, Button } from '@mui/material';
-
+import { Box, Card, Button, Typography, Avatar } from '@mui/material';
+import { Link } from 'react-router-dom';  
 
 export const PageContainer = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
@@ -14,10 +14,12 @@ export const PageContainer = styled(Box)(({ theme }) => ({
 export const RegisterCard = styled(Card)(({ theme }) => ({
   padding: theme.spacing(5),
   textAlign: 'center',
-  position: 'relative',
-  overflow: 'visible',
   width: '100%',
   maxWidth: '450px',
+  height: '680px',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
   boxShadow: '0 20px 60px rgba(74, 20, 140, 0.08)',
   borderRadius: theme.shape.borderRadius * 2,
 }));
@@ -50,8 +52,38 @@ export const StyledAvatarPicker = styled(Box)(({ theme }) => ({
   },
 }));
 
+export const PreviewAvatar = styled(Avatar)({
+  width: '100%',
+  height: '100%',
+  borderRadius: 'inherit',
+});
+
 export const SubmitBtn = styled(Button)(({ theme }) => ({
   marginTop: theme.spacing(4),
+  padding: theme.spacing(1.5),
   fontSize: '1rem',
   boxShadow: '0 8px 16px rgba(74, 20, 140, 0.2)',
+}));
+
+export const FormTitle = styled(Typography)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+  fontWeight: 900,
+}));
+
+export const FooterContainer = styled(Box)(({ theme }) => ({
+  marginTop: theme.spacing(3),
+}));
+
+export const FooterLink = styled(Link)(({ theme }) => ({
+  textDecoration: 'none',
+  color: theme.palette.primary.main,
+  fontWeight: 700,
+  '&:hover': {
+    textDecoration: 'underline',
+  },
+}));
+
+export const HelperText = styled(Typography)(({ theme }) => ({
+  marginTop: theme.spacing(1),
+  fontSize: '0.875rem',
 }));
