@@ -1,18 +1,10 @@
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, IconButton, InputAdornment, CircularProgress, Button } from "@mui/material";
-import { LogOut, Mail, Sparkles, Search, PlusCircle } from "lucide-react"; 
+import { Sparkles, Search } from "lucide-react";
 import { 
   HomeRoot, 
   MainContainer, 
-  ProfileHeader, 
-  HeaderActions, 
-  UserInfoSection,
-  UserDetails, 
-  StyledAvatar, 
-  UserName,
-  EmailRow, 
-  EmailText,
   AISearchField, 
   SearchResultsContainer,
   ResultCard, 
@@ -23,10 +15,12 @@ import {
   EmptyFeedSubText,
   ErrorText 
 } from "./Home.styles";
-import aiService from "../../services/ai-service";
-import postService from "../../services/post-service";
-import type { Post } from "../../services/post-service";import PostCard from "../../components/PostCard/PostCard"; 
+
+import aiService, { type SearchResult } from "../../services/ai-service";
+import postService, { type Post } from "../../services/post-service";
+import PostCard from "../../components/PostCard/PostCard"; 
 import CreatePostModal from "../../components/CreatePostModal/CreatePostModal";
+import Navbar from "../../components/Navbar/Navbar";
 
 interface UserProfile {
   _id?: string;
@@ -44,7 +38,7 @@ const Home = () => {
     if (savedUser && savedUser !== "undefined") {
       try {
         return JSON.parse(savedUser);
-      } catch (e) {
+      } catch {
         return null;
       }
     }
@@ -101,13 +95,6 @@ const Home = () => {
     fetchPosts(1); // Reload first page to show the new post
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    navigate("/login");
-  };
-
   const handleSearch = () => {
     if (!searchQuery.trim()) return;
     setIsLoadingSearch(true);
@@ -140,39 +127,10 @@ const Home = () => {
 
   if (!user) return null;
 
-  const displayName = user.username || user.name || "Guest";
-  const imageUrl = user?.photo 
-    ? (user.photo.startsWith('http') ? user.photo : `http://localhost:3000/public/${user.photo.split('/').pop()}`) 
-    : "";
-
   return (
     <HomeRoot>
+      <Navbar user={user} onNewPostClick={() => setIsModalOpen(true)} />
       <MainContainer>
-        <ProfileHeader elevation={0}>
-          <HeaderActions>
-            {/* Add Post Button located next to Logout */}
-            <IconButton onClick={() => setIsModalOpen(true)} color="inherit">
-              <PlusCircle size={20} />
-            </IconButton>
-            <IconButton onClick={handleLogout} color="inherit">
-              <LogOut size={20} />
-            </IconButton>
-          </HeaderActions>
-
-          <UserInfoSection>
-            <StyledAvatar src={imageUrl}>
-              {!imageUrl && displayName[0].toUpperCase()}
-            </StyledAvatar>
-            <UserDetails>
-              <UserName>{displayName}</UserName>
-              <EmailRow>
-                <Mail size={16} /> 
-                <EmailText>{user.email}</EmailText>
-              </EmailRow>
-            </UserDetails>
-          </UserInfoSection>
-        </ProfileHeader>
-
         <AISearchField 
           fullWidth 
           placeholder="Search with AI..." 
@@ -183,13 +141,13 @@ const Home = () => {
           InputProps={{ 
             startAdornment: (
               <InputAdornment position="start">
-                <Sparkles size={20} />
+                <Sparkles size={20} color="#4a148c" />
               </InputAdornment>
             ),
             endAdornment: (
               <InputAdornment position="end">
                 <IconButton onClick={handleSearch} disabled={isLoadingSearch || !searchQuery.trim()}>
-                  {isLoadingSearch ? <CircularProgress size={20} /> : <Search size={20} />}
+                  {isLoadingSearch ? <CircularProgress size={20} /> : <Search size={20} color={searchQuery.trim() ? "#4a148c" : "#ccc"}/>}
                 </IconButton>
               </InputAdornment>
             )
