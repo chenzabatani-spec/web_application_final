@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import { Box, Paper, TextField, Avatar, Typography } from '@mui/material';
+import { Box, Paper, TextField, Typography } from '@mui/material';
 
 export const HomeRoot = styled(Box)({
   minHeight: '100vh',
@@ -7,66 +7,12 @@ export const HomeRoot = styled(Box)({
 });
 
 export const MainContainer = styled(Box)(({ theme }) => ({
-  paddingTop: theme.spacing(4),
+  paddingTop: '100px',
   maxWidth: '900px',
   margin: '0 auto',
   paddingLeft: theme.spacing(2),
   paddingRight: theme.spacing(2),
 }));
-
-export const ProfileHeader = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(4),
-  borderRadius: 32,
-  background: 'linear-gradient(135deg, #4a148c, #7c43bd)',
-  color: 'white',
-  marginBottom: theme.spacing(4),
-  position: 'relative',
-  boxShadow: '0 10px 30px rgba(74, 20, 140, 0.2)',
-}));
-
-export const HeaderActions = styled(Box)({
-  display: 'flex', 
-  justifyContent: 'flex-end',
-});
-
-export const UserInfoSection = styled(Box)(({ theme }) => ({
-  display: 'flex', 
-  alignItems: 'center', 
-  gap: theme.spacing(3), 
-  marginTop: theme.spacing(-2),
-}));
-
-export const UserDetails = styled(Box)({
-  display: 'flex',
-  flexDirection: 'column',
-});
-
-export const StyledAvatar = styled(Avatar)(({ theme }) => ({
-  width: 100, 
-  height: 100, 
-  border: '5px solid white', 
-  backgroundColor: theme.palette.primary.light,
-  fontSize: '2.5rem',
-  fontWeight: 700,
-}));
-
-export const UserName = styled(Typography)({
-  fontSize: '2.125rem',
-  fontWeight: 900,
-  lineHeight: 1.2,
-});
-
-export const EmailRow = styled(Box)({
-  opacity: 0.8,
-  display: 'flex',
-  alignItems: 'center',
-  gap: '8px',
-  marginTop: '4px',
-});
-
-export const EmailText = styled(Typography)({
-  fontSize: '1rem',
-});
 
 export const AISearchField = styled(TextField)(({ theme }) => ({
   marginBottom: theme.spacing(4),

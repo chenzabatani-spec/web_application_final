@@ -12,7 +12,7 @@ interface PostCardProps {
   title: string; 
   text: string;
   postImage?: string;
-  createdAt?: string;
+  createdAt: string;
   isOwner?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
@@ -29,7 +29,15 @@ const PostCard = ({
 }: PostCardProps) => {
   
   // Format the date if available
-  const displayDate = createdAt ? new Date(createdAt).toLocaleDateString() : '';
+  const displayDate = createdAt 
+    ? new Date(createdAt).toLocaleString('he-IL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    : '';
   
   // Handle image path from server
   const authorImg = userPhoto?.startsWith('http') 
