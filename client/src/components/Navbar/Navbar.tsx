@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Avatar } from '@mui/material';
-import { MapPinned, Home as HomeIcon, PlusSquare, LogOut, MapIcon } from 'lucide-react';
+import { MapPinned, Home as HomeIcon, PlusSquare, LogOut} from 'lucide-react';
 import { NavContainer, LogoWrapper, NavLinks, NavItem, UserPill } from './Navbar.styles';
 
 interface NavbarProps {
