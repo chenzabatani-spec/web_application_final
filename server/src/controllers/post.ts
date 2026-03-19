@@ -9,7 +9,6 @@ class PostController extends BaseController<IPost> {
         super(PostModel);
     }
 
-    // Override getAll to support pagination and filtering
     async getAll(req: Request, res: Response) {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
@@ -17,60 +16,66 @@ class PostController extends BaseController<IPost> {
 
         try {
             const query = senderId ? { sender: senderId } : {};
-            
-            // Calculate how many documents to skip
             const skip = (page - 1) * limit;
 
-            const posts = await this.model.find(query)
-                .sort({ createdAt: -1 }) // Sort by newest first
-                .skip(skip)
-                .limit(limit)
-                .populate('sender', 'username email'); // Optional: include sender details
+            const [posts, total] = await Promise.all([
+                this.model.find(query)
+                    .sort({ createdAt: -1 })
+                    .skip(skip)
+                    .limit(limit)
+                    .populate('sender', 'username email photo'),
+                this.model.countDocuments(query)
+            ]);
 
-            res.status(200).send(posts);
+            res.status(200).json({
+                posts,
+                total,
+                page,
+                totalPages: Math.ceil(total / limit)
+            });
         } catch (error) {
             res.status(500).json({ message: error instanceof Error ? error.message : 'Error fetching posts' });
         }
     }
 
-    async create(req: AuthRequest, res: Response) {
-        // Take userId from req.user set by authMiddleware
-        const userId = req.user?._id;
+    async create(req: Request, res: Response) {
+    const authReq = req as AuthRequest;
+    const userId = authReq.user?._id;
 
-        if (!userId) {
-            // If userId is not available, return an error response
-            res.status(401).send("Unauthorized");
-            return;
+    if (!userId) {
+        res.status(401).send("Unauthorized");
+        return;
+    }
+
+    try {
+        const photoFilename = req.file ? req.file.filename : "";
+
+        const postData = {
+            title: req.body.title || "Untitled", 
+            content: req.body.content || "",
+            sender: userId,
+            photo: photoFilename
+        };
+
+        const newPost = await this.model.create(postData);
+
+        if (newPost.content) {
+            aiService.processAndSaveChunk(newPost._id, newPost.content)
+                .catch(err => console.error("AI processing failed:", err));
         }
 
-        // Attach the sender (userId) to the request body before creating the post
-        req.body.sender = userId; 
-
-        try {
-            // Save the new post to the database
-            const newPost = await this.model.create(req.body);
-
-            // Trigger AI processing for the post content
-            const postContent = req.body.content;
-
-            if (postContent) {
-                // Background task: We deliberately DO NOT use 'await' here.
-                // This allows the server to respond to the user immediately,
-                // while the Gemini API generates the embedding in the background.
-                aiService.processAndSaveChunk(newPost._id, postContent)
-                    .catch(err => console.error("Failed to generate AI chunk in background:", err));
-            }
-
-            // Respond to the client immediately after saving the post
-            res.status(201).send(newPost);
+        res.status(201).json(newPost);
         } catch (error) {
-            res.status(400).json({ message: error instanceof Error ? error.message : 'Error creating post' });
+            console.error("Create Post Error:", error);
+            res.status(400).json({ 
+                message: error instanceof Error ? error.message : 'Error creating post' 
+            });
         }
     }
 
-    // method to handle like/unlike functionality
-    async toggleLike(req: AuthRequest, res: Response) {
-        const userId = req.user?._id;
+    async toggleLike(req: Request, res: Response) {
+        const authReq = req as AuthRequest;
+        const userId = authReq.user?._id;
         const postId = req.params.id;
 
         if (!userId) {
@@ -85,26 +90,24 @@ class PostController extends BaseController<IPost> {
                 return;
             }
 
-            // Check if user already liked the post
             const isLiked = post.likes.includes(userId);
 
             if (isLiked) {
-                // If liked, remove the userId from likes array
                 post.likes = post.likes.filter(id => id !== userId);
             } else {
-                // If not liked, add the userId to likes array
                 post.likes.push(userId);
             }
 
             await post.save();
             res.status(200).send(post);
         } catch (error) {
-            res.status(400).send(error);
+            res.status(400).send(error instanceof Error ? error.message : error);
         }
     }
 
     async update(req: Request, res: Response) {
-        const { user } = req as AuthRequest;
+        const authReq = req as AuthRequest;
+        const userId = authReq.user?._id;
         const postId = req.params.id;
 
         try {
@@ -114,41 +117,42 @@ class PostController extends BaseController<IPost> {
                 return;
             }
 
-            // check if the authenticated user is the sender of the post
-            if (post.sender.toString() !== user?._id) { 
-                res.status(403).send("Unauthorized : You can only update your own posts");
+            if (post.sender.toString() !== userId) { 
+                res.status(403).send("Unauthorized");
                 return;
             }
 
-            const updatedPost = await this.model.findByIdAndUpdate(postId, req.body, { new: true });
-            res.status(200).send(updatedPost);
+            const updateData = { ...req.body };
+            if (req.file) {
+                updateData.photo = req.file.filename;
+            }
+
+            const updatedPost = await this.model.findByIdAndUpdate(postId, updateData, { new: true });
+            res.status(200).json(updatedPost);
         } catch (error) {
             res.status(400).send(error);
         }
     }
 
     async delete(req: Request, res: Response) {
-        const { user } = req as AuthRequest;
+        const authReq = req as AuthRequest;
+        const userId = authReq.user?._id;
         const postId = req.params.id;
 
         try {
             const post = await this.model.findById(postId);
-
             if (!post) {
                 res.status(404).send("Post not found");
                 return;
             }
 
-            // check if the authenticated user is the sender of the post
-            if (post.sender.toString() !== user?._id) {
-                res.status(403).send("Unauthorized: You can only delete your own posts");
+            if (post.sender.toString() !== userId) {
+                res.status(403).send("Unauthorized");
                 return;
             }
 
             await this.model.findByIdAndDelete(postId);
-            
             res.status(200).send({ message: "Post deleted successfully" });
-            
         } catch (error) {
             res.status(400).send(error);
         }

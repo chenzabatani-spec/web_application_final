@@ -1,6 +1,7 @@
 import express, { RequestHandler } from 'express';
 import postController from '../controllers/post';
 import authMiddleware from '../middleware/auth_middleware';
+import { upload } from './file_routes';
 
 
 const router = express.Router();
@@ -60,46 +61,6 @@ router.get('/', postController.getAll.bind(postController));
  */
 router.get('/:id', postController.getById.bind(postController));
 
-/**
- * @swagger
- * /posts:
- *   post:
- *     summary: Create a new post
- *     tags: [Posts]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - title
- *               - content
- *             properties:
- *               title:
- *                 type: string
- *                 description: The post title
- *               content:
- *                 type: string
- *                 description: The post content
- *           example:
- *             title: "My first post"
- *             content: "Hello world from Swagger!"
- *     responses:
- *       201:
- *         description: Post created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Post'
- *       400:
- *         description: Bad Request
- *       500:
- *         description: Server Error
- */
-router.post('/', authMiddleware, postController.create.bind(postController) as RequestHandler);
 
 /**
  * @swagger
@@ -141,6 +102,72 @@ router.post('/', authMiddleware, postController.create.bind(postController) as R
  *         description: Server Error
  */
 router.put('/:id',authMiddleware, postController.update.bind(postController));
+
+/**
+ * @swagger
+ * /posts:
+ *   post:
+ *     summary: Create a new post with text and optional image
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               content:
+ *                 type: string
+ *               photo:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       201:
+ *         description: Post created successfully
+ *       400:
+ *         description: Bad Request
+ */
+// הוספנו את upload.single('photo') לפני הקונטרולר
+router.post('/', authMiddleware, upload.single('photo'), postController.create.bind(postController) as RequestHandler);
+
+/**
+ * @swagger
+ * /posts/{id}:
+ *   put:
+ *     summary: Update a post (text or image)
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               content:
+ *                 type: string
+ *               photo:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Post updated successfully
+ */
+router.put('/:id', authMiddleware, upload.single('photo'), postController.update.bind(postController));
+
 
 /**
  * @swagger
