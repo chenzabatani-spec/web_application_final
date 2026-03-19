@@ -133,7 +133,7 @@ const Home = () => {
       <MainContainer>
         <AISearchField 
           fullWidth 
-          placeholder="Search with AI..." 
+          placeholder="Ask AI for your next stop... (e.g., 'best pasta in Italy')" 
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
