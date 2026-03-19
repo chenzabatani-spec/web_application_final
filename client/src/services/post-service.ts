@@ -24,12 +24,17 @@ export interface PostsResponse {
 
 const postService = {
   /**
-   * שליפת פוסטים עם תמיכה ב-Paging
-   * @param page מספר העמוד המבוקש
-   * @param limit כמות פוסטים לעמוד
+   * Fetches posts with pagination 
+   * @param page number of the requested page
+   * @param limit number of posts per page
+   * @param senderId optional filter to fetch posts by a specific sender
    */
-  getPosts: (page: number = 1, limit: number = 10) => {
-    return apiClient.get<PostsResponse>(`/posts?page=${page}&limit=${limit}`);
+  getPosts: (page: number = 1, limit: number = 10, senderId?: string) => {
+    let url = `/posts?page=${page}&limit=${limit}`;
+    if (senderId) {
+      url += `&senderId=${senderId}`;
+    }
+    return apiClient.get<PostsResponse>(url);
   },
 
   
