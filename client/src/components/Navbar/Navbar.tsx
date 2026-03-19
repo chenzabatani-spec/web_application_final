@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Avatar } from '@mui/material';
-import { Home as HomeIcon, PlusSquare, LogOut, MapIcon } from 'lucide-react';
+import { MapPinned, Home as HomeIcon, PlusSquare, LogOut, MapIcon } from 'lucide-react';
 import { NavContainer, LogoWrapper, NavLinks, NavItem, UserPill } from './Navbar.styles';
 
 interface NavbarProps {
@@ -33,7 +33,7 @@ const Navbar: React.FC<NavbarProps> = ({ user, onNewPostClick }) => {
   return (
     <NavContainer>
       <LogoWrapper onClick={() => navigate('/')}>
-        <MapIcon size={24} />
+        <MapPinned size={24} />
         NextStop
       </LogoWrapper>
 
