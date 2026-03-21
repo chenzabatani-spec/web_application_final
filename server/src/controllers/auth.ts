@@ -196,6 +196,8 @@ const googleLogin = async (req: Request, res: Response) => {
         type MongoUser = {
             _id: { toString: () => string };
             username: string;
+            email: string;
+            photo?: string;
             refreshTokens?: string[];
             save: () => Promise<void>;
         };
@@ -211,7 +213,7 @@ const googleLogin = async (req: Request, res: Response) => {
 
         // Redirect to frontend with tokens and user info as query parameters
         const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-        res.redirect(`${frontendUrl}/google-callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}&_id=${user._id}&username=${encodeURIComponent(user.username)}`);
+        res.redirect(`${frontendUrl}/google-callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}&_id=${user._id}&username=${encodeURIComponent(user.username)}&email=${encodeURIComponent(user.email)}&photo=${encodeURIComponent(user.photo || "")}`);
     } catch (err) {
         console.error("Error in googleLogin:", err);
         res.status(500).send("Error generating tokens during Google login");

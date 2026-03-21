@@ -12,8 +12,6 @@ const GoogleCallback = () => {
     const refreshToken = params.get("refreshToken");
     const userId = params.get("_id");
     const username = params.get("username");
-    
-    // It's highly recommended that your backend sends email and photo too!
     const email = params.get("email"); 
     const photo = params.get("photo");
 
