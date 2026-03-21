@@ -1,22 +1,217 @@
-import React from 'react';
-import { Box, Typography } from '@mui/material';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Box, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Typography } from '@mui/material';
+import { Edit2, Map, Heart, Camera } from 'lucide-react'; // שמתי כאן את Map במקום Route!
 import Navbar from '../../components/Navbar/Navbar';
+import PostCard from '../../components/PostCard/PostCard';
+import CreatePostModal from '../../components/CreatePostModal/CreatePostModal';
+import postService, { type Post } from '../../services/post-service';
+import userService from '../../services/user-service';
+import { 
+  ProfileRoot, ProfileContainer, PurpleBanner, EditProfileButton, 
+  AvatarWrapper, StyledAvatar, BannerContent, UserDetails, UserNameTitle, UserEmailText, 
+  StatsGlassBox, StatItem, StatValue, StatLabel,
+  FeedSection, FeedTitle 
+} from './Profile.styles';
 
 const Profile = () => {
-  // Get user data so the Navbar will not collapse. We will use this data to populate the profile page in the next branch.
-  const savedUser = localStorage.getItem("user");
-  const user = savedUser && savedUser !== "undefined" ? JSON.parse(savedUser) : null;
+  const navigate = useNavigate();
+
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem("user");
+    return saved && saved !== "undefined" ? JSON.parse(saved) : null;
+  });
+
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [isLoadingPosts, setIsLoadingPosts] = useState(false);
+  const [isNewPostModalOpen, setIsNewPostModalOpen] = useState(false);
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editUsername, setEditUsername] = useState(currentUser?.username || "");
+  const [editPhotoFile, setEditPhotoFile] = useState<File | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (!currentUser) navigate('/login');
+  }, [currentUser, navigate]);
+
+  const fetchUserPosts = useCallback(async () => {
+    if (!currentUser) return;
+    setIsLoadingPosts(true);
+    try {
+      const response = await postService.getPosts(1, 50, currentUser._id);
+      setPosts(response.data.posts);
+    } catch (err) {
+      console.error("Failed to fetch user posts", err);
+    } finally {
+      setIsLoadingPosts(false);
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    fetchUserPosts();
+  }, [fetchUserPosts]);
+
+  const profileStats = useMemo(() => {
+    if (!posts || posts.length === 0) return { postCount: 0, totalLikes: 0 };
+    const postCount = posts.length;
+    const totalLikes = posts.reduce((sum, post) => sum + (post.likes?.length || 0), 0);
+    return { postCount, totalLikes };
+  }, [posts]);
+
+  const handleSaveProfile = async () => {
+    if (!currentUser || !editUsername.trim()) return;
+    setIsSaving(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append("username", editUsername);
+      if (editPhotoFile) {
+        formData.append("photo", editPhotoFile);
+      }
+
+      const res = await userService.updateUser(currentUser._id, formData);
+      
+      const updatedUser = { ...currentUser, ...res.data };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setCurrentUser(updatedUser);
+      setIsEditModalOpen(false);
+      
+      fetchUserPosts(); 
+    } catch (error) {
+      console.error("Failed to update profile", error);
+      alert("Error updating profile. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (!currentUser) return null;
+
+  const displayName = currentUser.username || currentUser.name || "Traveler";
+  const imageUrl = currentUser.photo 
+    ? (currentUser.photo.startsWith('http') ? currentUser.photo : `http://localhost:3000/public/${currentUser.photo.split('/').pop()}`) 
+    : "";
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f8f9fa' }}>
-      <Navbar user={user} onNewPostClick={() => console.log("Open modal")} />
-      <Box sx={{ pt: '100px', textAlign: 'center' }}>
-        <Typography variant="h4" color="primary" fontWeight="bold">
-          עמוד פרופיל בבנייה 🚧
-        </Typography>
-        <Typography>כאן נעצב את הפרופיל בבראנץ' הבא!</Typography>
-      </Box>
-    </Box>
+    <ProfileRoot>
+      <Navbar user={currentUser} onNewPostClick={() => setIsNewPostModalOpen(true)} />
+      
+      <ProfileContainer>
+        <PurpleBanner>
+          <EditProfileButton onClick={() => {
+            setEditUsername(currentUser.username);
+            setEditPhotoFile(null);
+            setIsEditModalOpen(true);
+          }}>
+            <Edit2 size={16} /> Edit Profile
+          </EditProfileButton>
+
+          <AvatarWrapper>
+            <StyledAvatar src={imageUrl}>
+              {!imageUrl && displayName[0].toUpperCase()}
+            </StyledAvatar>
+          </AvatarWrapper>
+          
+          <BannerContent>
+            <UserDetails>
+              <UserNameTitle>{displayName}</UserNameTitle>
+              <UserEmailText>{currentUser.email || "No email provided"}</UserEmailText>
+            </UserDetails>
+
+            <StatsGlassBox>
+              <StatItem>
+                <StatValue>
+                  <Map size={18} color="#ce93d8" /> {profileStats.postCount}
+                </StatValue>
+                <StatLabel>Posts</StatLabel>
+              </StatItem>
+              
+              <StatItem>
+                <StatValue>
+                  <Heart size={18} color="#ce93d8" /> {profileStats.totalLikes}
+                </StatValue>
+                <StatLabel>Likes</StatLabel>
+              </StatItem>
+            </StatsGlassBox>
+          </BannerContent>
+
+        </PurpleBanner>
+
+        <FeedSection>
+          <FeedTitle>My Posts</FeedTitle>
+          
+          {isLoadingPosts ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+              <CircularProgress color="secondary" />
+            </Box>
+          ) : posts.length > 0 ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              {posts.map((post) => (
+                <PostCard 
+                  key={post._id}
+                  username={post.sender.username}
+                  userPhoto={post.sender.photo}
+                  title={post.title} 
+                  text={post.content || ""}
+                  postImage={post.photo ? `http://localhost:3000/public/${post.photo.split('/').pop()}` : undefined}
+                  createdAt={post.createdAt}
+                  isOwner={true}
+                />
+              ))}
+            </Box>
+          ) : (
+            <Box sx={{ textAlign: 'center', color: 'text.secondary', mt: 4, p: 4, bgcolor: '#ffffff', borderRadius: '12px', border: '1px solid #eee' }}>
+              <Typography variant="h6" fontWeight="bold">No posts yet...</Typography>
+              <Typography>Time to share your first destination!</Typography>
+            </Box>
+          )}
+        </FeedSection>
+      </ProfileContainer>
+
+      <Dialog open={isEditModalOpen} onClose={() => !isSaving && setIsEditModalOpen(false)} maxWidth="sm" fullWidth PaperProps={{ style: { borderRadius: 20 } }}>
+        <DialogTitle sx={{ fontWeight: 'bold', color: '#673ab7' }}>Edit Profile</DialogTitle>
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <StyledAvatar src={editPhotoFile ? URL.createObjectURL(editPhotoFile) : imageUrl} sx={{ width: 80, height: 80, border: '2px solid #ce93d8', fontSize: '2rem' }}>
+              {!imageUrl && !editPhotoFile && displayName[0].toUpperCase()}
+            </StyledAvatar>
+            <Button component="label" variant="contained" color="secondary" startIcon={<Camera size={18} />} sx={{ borderRadius: 20, textTransform: 'none' }}>
+              Upload New Photo
+              <input type="file" hidden accept="image/*" onChange={(e) => setEditPhotoFile(e.target.files?.[0] || null)} />
+            </Button>
+          </Box>
+          
+          <TextField
+            label="Username"
+            variant="outlined"
+            fullWidth
+            value={editUsername}
+            onChange={(e) => setEditUsername(e.target.value)}
+          />
+          <TextField
+            label="Email (Read Only)"
+            variant="outlined"
+            fullWidth
+            value={currentUser.email || "No email available"}
+            disabled
+          />
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button onClick={() => setIsEditModalOpen(false)} disabled={isSaving} color="inherit" sx={{ textTransform: 'none' }}>Cancel</Button>
+          <Button onClick={handleSaveProfile} disabled={isSaving || !editUsername.trim()} variant="contained" color="secondary" sx={{ borderRadius: 20, textTransform: 'none' }}>
+            {isSaving ? <CircularProgress size={24} color="inherit" /> : "Save Changes"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {isNewPostModalOpen && (
+        <CreatePostModal 
+          onClose={() => setIsNewPostModalOpen(false)} 
+          onPostCreated={fetchUserPosts} 
+        />
+      )}
+    </ProfileRoot>
   );
 };
 
