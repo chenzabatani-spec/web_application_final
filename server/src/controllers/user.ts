@@ -23,8 +23,13 @@ class UserController extends BaseController<IUser> {
         }
 
         // Prevent password updates through this route
-        if (req.body.password) {
+        if (req.body && req.body.password) {
             delete req.body.password; 
+        }
+
+        // If a new profile picture is uploaded, set the photo field to the filename
+        if (req.file) {
+             req.body.photo = req.file.filename;
         }
 
         return super.update(req, res);

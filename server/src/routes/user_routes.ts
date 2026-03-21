@@ -1,6 +1,7 @@
 import express from 'express';
 import userController from '../controllers/user';
 import authMiddleware from '../middleware/auth_middleware';
+import upload from '../middleware/upload_middleware';
 
 const router = express.Router();
 
@@ -104,7 +105,7 @@ router.get('/:id', authMiddleware, userController.getById.bind(userController));
  *       500:
  *         description: Server Error
  */
-router.put('/:id', authMiddleware, userController.update.bind(userController));
+router.put('/:id', authMiddleware, upload.single('photo'),userController.update.bind(userController));
 
 /**
  * @swagger
