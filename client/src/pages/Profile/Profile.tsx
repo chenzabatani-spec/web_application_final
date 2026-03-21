@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Typography } from '@mui/material';
-import { Edit2, Map, Heart, Camera } from 'lucide-react'; // שמתי כאן את Map במקום Route!
+import { Edit2, Map, Heart, Camera } from 'lucide-react';
 import Navbar from '../../components/Navbar/Navbar';
 import PostCard from '../../components/PostCard/PostCard';
 import CreatePostModal from '../../components/CreatePostModal/CreatePostModal';
@@ -11,7 +11,7 @@ import {
   ProfileRoot, ProfileContainer, PurpleBanner, EditProfileButton, 
   AvatarWrapper, StyledAvatar, BannerContent, UserDetails, UserNameTitle, UserEmailText, 
   StatsGlassBox, StatItem, StatValue, StatLabel,
-  FeedSection, FeedTitle 
+  FeedSection, FeedTitle, StatTextWrapper 
 } from './Profile.styles';
 
 const Profile = () => {
@@ -121,17 +121,19 @@ const Profile = () => {
 
             <StatsGlassBox>
               <StatItem>
-                <StatValue>
-                  <Map size={18} color="#ce93d8" /> {profileStats.postCount}
-                </StatValue>
-                <StatLabel>Posts</StatLabel>
+                <Map size={32} color="#ce93d8" strokeWidth={2} />
+                <StatTextWrapper>
+                  <StatValue>{profileStats.postCount}</StatValue>
+                  <StatLabel>Posts</StatLabel>
+                </StatTextWrapper>
               </StatItem>
               
               <StatItem>
-                <StatValue>
-                  <Heart size={18} color="#ce93d8" /> {profileStats.totalLikes}
-                </StatValue>
-                <StatLabel>Likes</StatLabel>
+                <Heart size={32} color="#ce93d8" strokeWidth={2} />
+                <StatTextWrapper>
+                  <StatValue>{profileStats.totalLikes}</StatValue>
+                  <StatLabel>Likes</StatLabel>
+                </StatTextWrapper>
               </StatItem>
             </StatsGlassBox>
           </BannerContent>

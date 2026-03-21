@@ -32,21 +32,21 @@ export const EditProfileButton = styled(Button)({
   position: 'absolute',
   top: '30px',
   right: '30px',
-  backgroundColor: 'rgba(255, 255, 255, 0.15)',
-  backdropFilter: 'blur(5px)',
-  color: 'white',
-  border: '1px solid rgba(255, 255, 255, 0.3)',
+  backgroundColor: '#ffffff',
+  color: '#8e24aa',
+  border: 'none',
+  boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
   padding: '8px 24px',
   borderRadius: '30px',
   fontSize: '14px',
-  fontWeight: 700,
+  fontWeight: 800,
   textTransform: 'none',
   gap: '8px',
   transition: 'all 0.2s ease',
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    backgroundColor: '#fafafa',
     transform: 'translateY(-2px)',
-    border: '1px solid rgba(255, 255, 255, 0.4)',
+    boxShadow: '0 6px 20px rgba(0,0,0,0.15)',
   }
 });
 
@@ -104,21 +104,22 @@ export const StatsGlassBox = styled(Box)({
   backgroundColor: 'rgba(255, 255, 255, 0.1)',
   backdropFilter: 'blur(8px)',
   border: '1px solid rgba(255, 255, 255, 0.15)',
-  borderRadius: '16px',
-  padding: '15px 50px',
-  gap: '50px', 
+  borderRadius: '14px',
+  padding: '10px 28px',
+  gap: '35px',
   boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
 });
 
 export const StatItem = styled(Box)({
   display: 'flex',
-  flexDirection: 'column',
+  flexDirection: 'row',
   alignItems: 'center',
+  gap: '12px',
   position: 'relative',
   '&:first-of-type::after': {
     content: '""',
     position: 'absolute',
-    right: '-25px',
+    right: '-18px',
     top: '15%',
     height: '70%',
     width: '1px',
@@ -126,22 +127,28 @@ export const StatItem = styled(Box)({
   }
 });
 
-export const StatValue = styled(Typography)({
-  fontSize: '24px', 
-  fontWeight: 900,
+export const StatTextWrapper = styled(Box)({
   display: 'flex',
+  flexDirection: 'column',
   alignItems: 'center',
-  gap: '10px',
-  lineHeight: 1,
-  marginBottom: '4px',
 });
 
+
+export const StatValue = styled(Typography)({
+  fontSize: '22px',
+  fontWeight: 900,
+  lineHeight: 1,
+  marginBottom: '2px',
+});
+
+
 export const StatLabel = styled(Typography)({
-  fontSize: '12px',
+  fontSize: '11px',
   textTransform: 'uppercase',
   color: 'rgba(255, 255, 255, 0.85)',
   letterSpacing: '1px',
   fontWeight: 700,
+  lineHeight: 1,
 });
 
 export const FeedSection = styled(Box)({
