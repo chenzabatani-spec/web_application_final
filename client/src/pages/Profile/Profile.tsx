@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Typography } from '@mui/material';
 import { Edit2, Map, Heart, Camera } from 'lucide-react';
@@ -152,6 +152,9 @@ const Profile = () => {
               {posts.map((post) => (
                 <PostCard 
                   key={post._id}
+                  postId={post._id!}
+                  currentUserId={currentUser._id || ""}
+                  likes={post.likes || []}
                   username={post.sender.username}
                   userPhoto={post.sender.photo}
                   title={post.title} 
@@ -159,6 +162,9 @@ const Profile = () => {
                   postImage={post.photo ? `http://localhost:3000/public/${post.photo.split('/').pop()}` : undefined}
                   createdAt={post.createdAt}
                   isOwner={true}
+                  // אם יש לך כבר פונקציות מחיקה/עריכה בפרופיל, תוסיפי אותן פה:
+                  // onDelete={() => handleDeletePost(post._id!)}
+                  // onEdit={() => handleEditClick(post)}
                 />
               ))}
             </Box>

@@ -24,7 +24,7 @@ const initApp = (): Promise<Express> => {
             const app = express();
             app.use(cors({
                 origin: "http://localhost:5173", // The URL of your React app
-                methods: ["GET", "POST", "PUT", "DELETE"],
+                methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
                 credentials: true // Important for Cookies/Tokens later (Lecture 6)
             }));
             app.use(bodyParser.json());

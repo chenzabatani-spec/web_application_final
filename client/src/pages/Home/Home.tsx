@@ -196,6 +196,9 @@ const Home = () => {
                 {posts.map((post) => (
                   <PostCard 
                     key={post._id}
+                    postId={post._id!}
+                    currentUserId={user._id || ""}
+                    likes={post.likes || []}
                     username={post.sender.username}
                     userPhoto={post.sender.photo}
                     title={post.title} 
