@@ -12,7 +12,7 @@ class PostController extends BaseController<IPost> {
     async getAll(req: Request, res: Response) {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
-        const senderId = req.query.sender;
+        const senderId = req.query.senderId;
 
         try {
             const query = senderId ? { sender: senderId } : {};
