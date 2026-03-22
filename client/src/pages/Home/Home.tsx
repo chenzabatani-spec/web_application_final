@@ -59,6 +59,7 @@ const Home = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -125,6 +126,27 @@ const Home = () => {
     }
   };
 
+  const handleDeletePost = async (postId: string) => {
+    if (!window.confirm("are you sure you want to delete this post?")) return;
+
+    try {
+      await postService.deletePost(postId);
+      setPosts((prev) => prev.filter((p) => p._id !== postId));
+    } catch (err) {
+      console.error("Failed to delete post", err);
+      alert("The deletion failed, please try again later");
+    }
+  };
+
+  const handleEditClick = (post: Post) => {
+    setEditingPost(post);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingPost(null);
+  };
   if (!user) return null;
 
   return (
@@ -181,6 +203,8 @@ const Home = () => {
                     postImage={post.photo ? `http://localhost:3000/public/${post.photo}` : undefined}
                     createdAt={post.createdAt}
                     isOwner={post.sender._id === user._id}
+                    onDelete={() => handleDeletePost(post._id!)} 
+                    onEdit={() => handleEditClick(post)}
                   />
                 ))}
                 
@@ -212,8 +236,9 @@ const Home = () => {
         {/* Modal render logic */}
         {isModalOpen && (
           <CreatePostModal 
-            onClose={() => setIsModalOpen(false)} 
+            onClose={handleCloseModal} 
             onPostCreated={handlePostCreated} 
+            postToEdit={editingPost}
           />
         )}
       </MainContainer>

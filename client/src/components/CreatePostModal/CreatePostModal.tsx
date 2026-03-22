@@ -1,26 +1,40 @@
-import React, { useState, useRef } from 'react';
-import { IconButton, TextField, CircularProgress, Box, Typography } from '@mui/material';
-import { X, Camera, Image as ImageIcon } from 'lucide-react';
-import postService from '../../services/post-service';
+import React, { useState, useRef, useEffect } from 'react';
+import { IconButton, CircularProgress, Typography } from '@mui/material';
+import { X, Camera } from 'lucide-react';
+import postService, { type Post } from '../../services/post-service';
 import { 
-  ModalOverlay, ModalContent, ImagePreviewBox, 
-  PreviewImage, SubmitPostBtn 
+  ModalOverlay, ModalContent, ImagePreviewBox, PreviewImage, SubmitPostBtn, ModalHeader, 
+  ModalTitle, StyledTextField, PhotoPlaceholder,PreviewContainer,RemoveImageBtn 
 } from './CreatePostModal.styles';
 
 interface CreatePostModalProps {
   onClose: () => void;
   onPostCreated: () => void;
+  postToEdit?: Post | null;
 }
 
-const CreatePostModal = ({ onClose, onPostCreated }: CreatePostModalProps) => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+const CreatePostModal = ({ onClose, onPostCreated, postToEdit }: CreatePostModalProps) => {
+  const [title, setTitle] = useState(postToEdit?.title || '');
+  const [content, setContent] = useState(postToEdit?.content || '');
   const [image, setImage] = useState<File | null>(null);
-  const [preview, setPreview] = useState('');
+  const [preview, setPreview] = useState(
+    postToEdit?.photo ? `http://localhost:3000/public/${postToEdit.photo}` : ''
+  );
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Handle image selection and preview
+  useEffect(() => {
+    if (postToEdit) {
+      setTitle(postToEdit.title || '');
+      setContent(postToEdit.content || '');
+      setPreview(postToEdit.photo ? `http://localhost:3000/public/${postToEdit.photo}` : '');
+    } else {
+      setTitle('');
+      setContent('');
+      setPreview('');
+    }
+  }, [postToEdit]);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -29,24 +43,38 @@ const CreatePostModal = ({ onClose, onPostCreated }: CreatePostModalProps) => {
     }
   };
 
+  const handleRemoveImage = (e: React.MouseEvent) => {
+    e.stopPropagation();     
+    setImage(null);
+    setPreview('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleSubmit = async () => {
     if (!title.trim()) return;
-
     setLoading(true);
     try {
-      // Using FormData to send both text and binary file (Section 4 requirement)
-      const formData = new FormData();
+      const formData = new FormData(); 
       formData.append('title', title);
       formData.append('content', content);
+
       if (image) {
-        formData.append('photo', image);
+        formData.append('photo', image); 
+      } else if (preview === '') {
+        formData.append('deletePhoto', 'true'); 
+      }
+      if (postToEdit?._id) {
+        await postService.updatePost(postToEdit._id, formData); 
+      } else {
+        await postService.createPost(formData); 
       }
 
-      await postService.createPost(formData);
-      onPostCreated(); // Refresh the feed
-      onClose(); // Close modal
+      onPostCreated();
+      onClose();
     } catch (error) {
-      console.error("Failed to create post:", error);
+      console.error("Failed to save post:", error);
     } finally {
       setLoading(false);
     }
@@ -55,43 +83,41 @@ const CreatePostModal = ({ onClose, onPostCreated }: CreatePostModalProps) => {
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContent onClick={(e) => e.stopPropagation()} elevation={0}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h6" fontWeight={800} color="primary">Create New Post</Typography>
+        <ModalHeader>
+          <ModalTitle variant="h6">
+            {postToEdit ? 'Edit Post' : 'Create New Post'}
+          </ModalTitle>
           <IconButton onClick={onClose} size="small"><X size={20} /></IconButton>
-        </Box>
+        </ModalHeader>
 
-        <input 
-          type="file" 
-          hidden 
-          ref={fileInputRef} 
-          onChange={handleImageChange} 
-          accept="image/*" 
-        />
+        <input type="file" hidden ref={fileInputRef} onChange={handleImageChange} accept="image/*" />
 
         <ImagePreviewBox onClick={() => fileInputRef.current?.click()}>
           {preview ? (
-            <PreviewImage src={preview} alt="Preview" />
+            <PreviewContainer>
+              <PreviewImage src={preview} alt="Preview" />
+              <RemoveImageBtn onClick={handleRemoveImage} size="small">
+                <X size={16} color="#d32f2f" />
+              </RemoveImageBtn>
+            </PreviewContainer>
           ) : (
-            <Box textAlign="center" color="#7c43bd">
+            <PhotoPlaceholder>
               <Camera size={40} />
               <Typography variant="body2">Click to add a photo</Typography>
-            </Box>
+            </PhotoPlaceholder>
           )}
         </ImagePreviewBox>
 
-        <TextField
+        <StyledTextField
           fullWidth
           label="Title"
-          variant="outlined"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          sx={{ mb: 2 }}
         />
 
-        <TextField
+        <StyledTextField
           fullWidth
           label="What's on your mind?"
-          variant="outlined"
           multiline
           rows={3}
           value={content}
@@ -104,7 +130,11 @@ const CreatePostModal = ({ onClose, onPostCreated }: CreatePostModalProps) => {
           onClick={handleSubmit}
           disabled={loading || !title.trim()}
         >
-          {loading ? <CircularProgress size={24} color="inherit" /> : "Post Now"}
+          {loading ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            postToEdit ? "Update Post" : "Post Now"
+          )}
         </SubmitPostBtn>
       </ModalContent>
     </ModalOverlay>

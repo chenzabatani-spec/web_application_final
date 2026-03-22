@@ -122,15 +122,22 @@ class PostController extends BaseController<IPost> {
                 return;
             }
 
-            const updateData = { ...req.body };
+            const updateData: any = {
+                title: req.body.title,
+                content: req.body.content
+            };
+
             if (req.file) {
                 updateData.photo = req.file.filename;
+            } else if (req.body.deletePhoto === 'true') {
+                updateData.photo = ""; 
             }
 
             const updatedPost = await this.model.findByIdAndUpdate(postId, updateData, { new: true });
-            res.status(200).json(updatedPost);
+            res.status(200).json(updatedPost); 
+
         } catch (error) {
-            res.status(400).send(error);
+            res.status(400).send(error instanceof Error ? error.message : error);
         }
     }
 
