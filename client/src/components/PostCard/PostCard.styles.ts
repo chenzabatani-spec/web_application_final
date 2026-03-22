@@ -61,3 +61,22 @@ export const PostActionsRow = styled(Box)(({ theme }) => ({
   borderTop: '1px solid #f8f0ff',
   backgroundColor: '#fdfbff',
 }));
+
+export const PostTitle = styled(Typography)({
+  fontWeight: 'bold',
+  marginBottom: '8px',
+  color: '#4a148c',
+  fontSize: '1.1rem',
+});
+
+export const StyledAvatar = styled(Avatar)({
+  width: 45,
+  height: 45,
+  border: '2px solid #f3e5f5',
+});
+
+export const MenuText = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+});

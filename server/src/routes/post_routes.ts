@@ -61,48 +61,6 @@ router.get('/', postController.getAll.bind(postController));
  */
 router.get('/:id', postController.getById.bind(postController));
 
-
-/**
- * @swagger
- * /posts/{id}:
- *   put:
- *     summary: Update a post
- *     tags: [Posts]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: The post ID
- *         example: 609e129e1c4ae12f34567890
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Post'
- *           example:
- *             title: "Updated title"
- *             content: "Updated content"
- *     responses:
- *       200:
- *         description: The post was updated
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Post'
- *       401:
- *         description: Unauthorized
- *       404:
- *         description: Post not found
- *       500:
- *         description: Server Error
- */
-router.put('/:id',authMiddleware, postController.update.bind(postController));
-
 /**
  * @swagger
  * /posts:

@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import { Box, Paper, Button, Typography, TextField } from '@mui/material';
+import { Box, Paper, Button, Typography, TextField, IconButton} from '@mui/material';
 
 export const ModalOverlay = styled(Box)({
   position: 'fixed',
@@ -52,3 +52,44 @@ export const SubmitPostBtn = styled(Button)(({ theme }) => ({
   background: 'linear-gradient(45deg, #4a148c 30%, #7c43bd 90%)',
   boxShadow: '0 3px 5px 2px rgba(124, 67, 189, .3)',
 }));
+ 
+export const ModalHeader = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: theme.spacing(2),
+}));
+
+export const ModalTitle = styled(Typography)({
+  fontWeight: 800,
+  color: '#4a148c', 
+});
+
+export const StyledTextField = styled(TextField)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+  '& .MuiOutlinedInput-root': {
+    borderRadius: 12,
+  },
+}));
+
+export const PhotoPlaceholder = styled(Box)({
+  textAlign: 'center',
+  color: '#7c43bd',
+});
+
+export const PreviewContainer = styled(Box)({
+  position: 'relative',
+  width: '100%',
+  height: '100%',
+});
+
+export const RemoveImageBtn = styled(IconButton)({
+  position: 'absolute',
+  top: 8,
+  right: 8,
+  backgroundColor: 'rgba(255, 255, 255, 0.8)',
+  '&:hover': {
+    backgroundColor: '#fff',
+  },
+  padding: '4px',
+});
