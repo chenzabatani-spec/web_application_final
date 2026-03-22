@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
-import { IconButton, Menu, MenuItem, Box } from '@mui/material';
+import { IconButton, Menu, MenuItem, Box, Typography } from '@mui/material';
 import { Heart, MessageCircle, MoreVertical, Share2, Edit2, Trash2 } from 'lucide-react';
 import { 
   StyledPostCard, PostHeader, PostAuthorInfo, AuthorName, 
   PostDate, PostContentArea, PostBodyText, PostImage, PostActionsRow,
   PostTitle, StyledAvatar 
 } from './PostCard.styles';
+import postService from '../../services/post-service';
 
 interface PostCardProps {
+  postId: string;
+  currentUserId: string;
+  likes?: string[];
   username: string;
   userPhoto?: string;
   title: string; 
@@ -20,9 +24,32 @@ interface PostCardProps {
 }
 
 const PostCard = ({ 
+  postId, currentUserId, likes = [],
   username, userPhoto, title, text, postImage, createdAt, isOwner, onEdit, onDelete 
 }: PostCardProps) => {
   
+  // Like State Management
+  const [isLiked, setIsLiked] = useState<boolean>(likes.includes(currentUserId));
+  const [likesCount, setLikesCount] = useState<number>(likes.length);
+
+  // Like Button Handler - Optimistic UI Update
+  const handleLikeClick = async () => {
+    // First, we optimistically update the UI
+    const newIsLiked = !isLiked;
+    setIsLiked(newIsLiked);
+    setLikesCount(prev => newIsLiked ? prev + 1 : prev - 1);
+
+    // Then we call the API to toggle the like status on the server
+    try {
+      await postService.toggleLike(postId);
+    } catch (error) {
+      console.error("Failed to toggle like", error);
+      // If the API call fails, we revert the optimistic update
+      setIsLiked(!newIsLiked);
+      setLikesCount(prev => !newIsLiked ? prev + 1 : prev - 1);
+    }
+  };
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -67,7 +94,21 @@ const PostCard = ({
       {postImage && <PostImage component="img" image={postImage} alt="Post content" />}
 
       <PostActionsRow>
-        <IconButton size="small"><Heart size={20} color="#4a148c" /></IconButton>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <IconButton size="small" onClick={handleLikeClick}>
+            <Heart 
+              size={20} 
+              color={isLiked ? "#e91e63" : "#4a148c"} 
+              fill={isLiked ? "#e91e63" : "none"} 
+            />
+          </IconButton>
+          {likesCount > 0 && (
+            <Typography variant="body2" sx={{ color: isLiked ? "#e91e63" : "#4a148c", fontWeight: 600 }}>
+              {likesCount}
+            </Typography>
+          )}
+        </Box>
+
         <IconButton size="small"><MessageCircle size={20} color="#4a148c" /></IconButton>
         <IconButton size="small"><Share2 size={20} color="#4a148c" /></IconButton>
       </PostActionsRow>
