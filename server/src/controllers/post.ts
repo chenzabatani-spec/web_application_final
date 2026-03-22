@@ -122,7 +122,7 @@ class PostController extends BaseController<IPost> {
                 return;
             }
 
-            const updateData: any = {
+            const updateData: { title?: string; content?: string; photo?: string } = {
                 title: req.body.title,
                 content: req.body.content
             };

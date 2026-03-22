@@ -91,7 +91,7 @@ const PostCard = ({
         <PostBodyText>{text}</PostBodyText>
       </PostContentArea>
 
-      {postImage && <PostImage component="img" image={postImage} alt="Post content" />}
+      {postImage && <PostImage image={postImage} title="Post content" />}
 
       <PostActionsRow>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
