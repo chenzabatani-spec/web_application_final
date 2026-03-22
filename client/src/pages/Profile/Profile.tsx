@@ -30,6 +30,7 @@ const Profile = () => {
   const [editUsername, setEditUsername] = useState(currentUser?.username || "");
   const [editPhotoFile, setEditPhotoFile] = useState<File | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
 
   useEffect(() => {
     if (!currentUser) navigate('/login');
@@ -92,6 +93,25 @@ const Profile = () => {
   const imageUrl = currentUser.photo 
     ? (currentUser.photo.startsWith('http') ? currentUser.photo : `http://localhost:3000/public/${currentUser.photo.split('/').pop()}`) 
     : "";
+  const handleEditClick = (post: Post) => {
+    setEditingPost(post);
+    setIsNewPostModalOpen(true);
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    if (!window.confirm("Are you sure?")) return;
+    try {
+      await postService.deletePost(postId);
+      setPosts(prev => prev.filter(p => p._id !== postId));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsNewPostModalOpen(false);
+    setEditingPost(null);
+  };
 
   return (
     <ProfileRoot>
@@ -162,9 +182,8 @@ const Profile = () => {
                   postImage={post.photo ? `http://localhost:3000/public/${post.photo.split('/').pop()}` : undefined}
                   createdAt={post.createdAt}
                   isOwner={true}
-                  // אם יש לך כבר פונקציות מחיקה/עריכה בפרופיל, תוסיפי אותן פה:
-                  // onDelete={() => handleDeletePost(post._id!)}
-                  // onEdit={() => handleEditClick(post)}
+                  onEdit={() => handleEditClick(post)}
+                  onDelete={() => handleDeletePost(post._id!)}
                 />
               ))}
             </Box>
@@ -215,8 +234,9 @@ const Profile = () => {
 
       {isNewPostModalOpen && (
         <CreatePostModal 
-          onClose={() => setIsNewPostModalOpen(false)} 
-          onPostCreated={fetchUserPosts} 
+          onClose={handleCloseModal}
+          onPostCreated={fetchUserPosts}
+          postToEdit={editingPost}
         />
       )}
     </ProfileRoot>

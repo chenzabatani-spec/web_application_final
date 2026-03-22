@@ -174,3 +174,27 @@ export const FeedTitle = styled(Typography)({
     borderRadius: '2px',
   }
 });
+
+export const PostsContainer = styled(Box)(() => ({
+  width: '100%',
+  maxWidth: '800px',
+  marginTop: '32px', 
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '24px',
+}));
+
+export const AddPostFloatingBtn = styled(Button)(() => ({
+  position: 'fixed',
+  bottom: 30,
+  right: 30,
+  borderRadius: '50px',
+  padding: '12px 24px',
+  background: 'linear-gradient(45deg, #4a148c 30%, #7c43bd 90%)',
+  color: 'white',
+  fontWeight: 'bold',
+  boxShadow: '0 4px 14px 0 rgba(0,0,0,0.39)',
+  '&:hover': {
+    background: 'linear-gradient(45deg, #7c43bd 30%, #4a148c 90%)',
+  },
+}));
