@@ -21,6 +21,7 @@ import postService, { type Post } from "../../services/post-service";
 import PostCard from "../../components/PostCard/PostCard"; 
 import CreatePostModal from "../../components/CreatePostModal/CreatePostModal";
 import Navbar from "../../components/Navbar/Navbar";
+import CommentsModal from "../../components/CommentsModal/CommentsModal";
 
 interface UserProfile {
   _id?: string;
@@ -60,6 +61,7 @@ const Home = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
+  const [commentPostId, setCommentPostId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -208,6 +210,8 @@ const Home = () => {
                     isOwner={post.sender._id === user._id}
                     onDelete={() => handleDeletePost(post._id!)} 
                     onEdit={() => handleEditClick(post)}
+                    commentsCount={post.commentsCount || 0}
+                    onCommentsClick={() => setCommentPostId(post._id!)}
                   />
                 ))}
                 
@@ -244,6 +248,14 @@ const Home = () => {
             postToEdit={editingPost}
           />
         )}
+        {commentPostId && (
+            <CommentsModal 
+              open={Boolean(commentPostId)} 
+              onClose={() => setCommentPostId(null)} 
+              postId={commentPostId}
+              onCommentAdded={handlePostCreated} 
+            />
+          )}
       </MainContainer>
     </HomeRoot>
   );

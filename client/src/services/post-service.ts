@@ -12,6 +12,7 @@ export type Post = {
   };
   photo?: string;
   likes: string[];
+  commentsCount?: number;
   createdAt: string;
 }
 
