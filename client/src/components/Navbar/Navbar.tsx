@@ -11,9 +11,10 @@ interface NavbarProps {
     photo?: string;
   } | null;
   onNewPostClick: () => void;
+  onHomeClick?: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ user, onNewPostClick }) => {
+const Navbar: React.FC<NavbarProps> = ({ user, onNewPostClick, onHomeClick }) => {
   const navigate = useNavigate();
   const location = useLocation(); // Hook to get the current location for active link styling
 
@@ -32,7 +33,10 @@ const Navbar: React.FC<NavbarProps> = ({ user, onNewPostClick }) => {
 
   return (
     <NavContainer>
-      <LogoWrapper onClick={() => navigate('/')}>
+      <LogoWrapper onClick={() => {
+        navigate('/');
+        onHomeClick?.();
+      }}>
         <MapPinned size={24} />
         NextStop
       </LogoWrapper>
@@ -41,7 +45,7 @@ const Navbar: React.FC<NavbarProps> = ({ user, onNewPostClick }) => {
         {/* Check if the current path is '/' and change color accordingly */}
         <NavItem 
           isActive={location.pathname === '/'} 
-          onClick={() => navigate('/')}
+          onClick={() => { onHomeClick?.(); navigate('/'); }}
         >
           <HomeIcon size={20} /> 
           <span className="nav-text">Feed</span>
