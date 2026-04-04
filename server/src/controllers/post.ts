@@ -16,7 +16,7 @@ class PostController extends BaseController<IPost> {
         const senderId = req.query.senderId;
 
         try {
-            const matchQuery: any = {};
+            const matchQuery: { sender?: mongoose.Types.ObjectId } = {};
             if (senderId) {
                 matchQuery.sender = new mongoose.Types.ObjectId(senderId as string);
             }
