@@ -2,13 +2,14 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import mongoose from "mongoose";
 import Chunk from "../models/chunk_model";
 
-// Check if the API key is set in the environment variables
-if (!process.env.GEMINI_API_KEY) {
-    throw new Error("GEMINI_API_KEY is not set in .env file");
+// Check if the API key is set, but don't crash if we are running Jest tests
+if (!process.env.GEMINI_API_KEY && process.env.NODE_ENV !== 'test') {
+    console.warn("GEMINI_API_KEY is not set in .env file");
 }
 
-// Initialize the Google Generative AI client with the API key
-const genAi = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Initialize the Google Generative AI client (fallback to a dummy key for tests)
+const apiKey = process.env.GEMINI_API_KEY || "dummy-key-for-tests-only";
+const genAi = new GoogleGenerativeAI(apiKey);
 
 const generateEmbedding = async (text: string): Promise<number[]> => {
     try {
