@@ -99,10 +99,17 @@ const Home = () => {
   };
 
   const handleSearch = () => {
-    if (!searchQuery.trim()) return;
+    // If search query is empty, clear results and return
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setSearchError(null);
+      return;
+    }
+
     setIsLoadingSearch(true);
     setSearchError(null);
     setSearchResults([]);
+    
 
     const { request } = aiService.searchSimilarPosts(searchQuery);
     
@@ -118,6 +125,12 @@ const Home = () => {
         setSearchError("Search failed. Please try again.");
         setIsLoadingSearch(false);
       });
+  };
+
+  const resetHomeState = () => {
+    setSearchQuery("");
+    setSearchResults([]);
+    setSearchError(null);
   };
 
   const handleLoadMore = () => {
@@ -153,13 +166,21 @@ const Home = () => {
 
   return (
     <HomeRoot>
-      <Navbar user={user} onNewPostClick={() => setIsModalOpen(true)} />
+      <Navbar user={user} onNewPostClick={() => setIsModalOpen(true)} onHomeClick={resetHomeState} />
       <MainContainer>
         <AISearchField 
           fullWidth 
           placeholder="Ask AI for your next stop... (e.g., 'best pasta in Italy')" 
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            setSearchQuery(value);
+            // If user clears the input, reset search results and error
+            if (!value.trim()) {
+              setSearchResults([]);
+              setSearchError(null);
+            }
+          }}
           onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           disabled={isLoadingSearch}
           InputProps={{ 
