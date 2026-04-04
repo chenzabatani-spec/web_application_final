@@ -80,3 +80,15 @@ export const MenuText = styled(Box)({
   alignItems: 'center',
   gap: '8px',
 });
+
+export const ActionGroup = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '4px',
+});
+
+export const CounterText = styled(Typography)({
+  fontSize: '0.875rem',
+  fontWeight: 600,
+  color: '#4a148c',
+});

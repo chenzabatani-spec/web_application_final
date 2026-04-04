@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import { AuthRequest } from '../middleware/auth_middleware';
 import PostModel, { IPost } from '../models/post_model';
 import { BaseController } from './base_controller';
@@ -15,17 +16,58 @@ class PostController extends BaseController<IPost> {
         const senderId = req.query.senderId;
 
         try {
-            const query = senderId ? { sender: senderId } : {};
+            const matchQuery: any = {};
+            if (senderId) {
+                matchQuery.sender = new mongoose.Types.ObjectId(senderId as string);
+            }
+
             const skip = (page - 1) * limit;
 
-            const [posts, total] = await Promise.all([
-                this.model.find(query)
-                    .sort({ createdAt: -1 })
-                    .skip(skip)
-                    .limit(limit)
-                    .populate('sender', 'username email photo'),
-                this.model.countDocuments(query)
+            const posts = await this.model.aggregate([
+                { $match: matchQuery }, 
+                { $sort: { createdAt: -1 } }, 
+                { $skip: skip },
+                { $limit: limit },
+                {
+                    $lookup: {
+                        from: "comments",
+                        localField: "_id",
+                        foreignField: "postId",
+                        as: "comments"
+                    }
+                },
+                {
+                    $addFields: {
+                        commentsCount: { $size: "$comments" }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "sender",
+                        foreignField: "_id",
+                        as: "senderInfo"
+                    }
+                },
+                { $unwind: "$senderInfo" },
+                {
+                    $project: {
+                        title: 1,
+                        content: 1,
+                        photo: 1,
+                        likes: 1,
+                        createdAt: 1,
+                        commentsCount: 1,
+                        sender: {
+                            _id: "$senderInfo._id",
+                            username: "$senderInfo.username",
+                            photo: "$senderInfo.photo"
+                        }
+                    }
+                }
             ]);
+
+            const total = await this.model.countDocuments(matchQuery);
 
             res.status(200).json({
                 posts,
@@ -34,7 +76,7 @@ class PostController extends BaseController<IPost> {
                 totalPages: Math.ceil(total / limit)
             });
         } catch (error) {
-            res.status(500).json({ message: error instanceof Error ? error.message : 'Error fetching posts' });
+            res.status(500).json({ message: error instanceof Error ? error.message : 'Internal Server Error' });
         }
     }
 
