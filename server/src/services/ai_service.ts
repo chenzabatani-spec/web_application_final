@@ -111,10 +111,21 @@ const searchSimilarPosts = async (queryText: string, topK: number = 3) => {
     }
 };
 
+// Function to delete all chunks associated with a specific post ID (used when a post is deleted)
+const deleteChunksByPostId = async (postId: string) => {
+    try {
+        await Chunk.deleteMany({ postId: postId });
+        console.log(`Successfully deleted AI chunks for post ${postId}`);
+    } catch (error) {
+        console.error("Error deleting chunks for post:", error);
+    }
+};
+
 const aiService = {
     generateEmbedding,
     processAndSaveChunk,
-    searchSimilarPosts
+    searchSimilarPosts,
+    deleteChunksByPostId
 };
 
 export default aiService;

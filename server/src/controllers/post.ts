@@ -186,7 +186,7 @@ class PostController extends BaseController<IPost> {
     async delete(req: Request, res: Response) {
         const authReq = req as AuthRequest;
         const userId = authReq.user?._id;
-        const postId = req.params.id;
+        const postId = req.params.id as string;
 
         try {
             const post = await this.model.findById(postId);
@@ -201,6 +201,9 @@ class PostController extends BaseController<IPost> {
             }
 
             await this.model.findByIdAndDelete(postId);
+
+            await aiService.deleteChunksByPostId(postId);
+
             res.status(200).send({ message: "Post deleted successfully" });
         } catch (error) {
             res.status(400).send(error);
