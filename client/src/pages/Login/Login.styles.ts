@@ -28,7 +28,7 @@ export const StyledLoginCard = styled(Card)(({ theme }) => ({
   flexDirection: 'column',
   justifyContent: 'center', 
   boxShadow: '0 20px 60px rgba(74, 20, 140, 0.08)',
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: Number(theme.shape.borderRadius) * 2,
 }));
 
 export const FormTitle = styled(Typography)(({ theme }) => ({
