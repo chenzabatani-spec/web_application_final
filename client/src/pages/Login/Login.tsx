@@ -37,18 +37,19 @@ const Login = () => {
     try {
       const res = await axios.post("http://localhost:3000/auth/login", data);
       
-      // חילוץ הנתונים מהתגובה של השרת
+      // Extracting tokens and user info from the response
       const { accessToken, refreshToken, user } = res.data;
       
-      // שמירה ב-LocalStorage בשמות הנכונים
+      // Saving user info and tokens to localStorage for session management
       localStorage.setItem("user", JSON.stringify(user || res.data));
-      localStorage.setItem("accessToken", accessToken || res.data.token); // גיבוי אם השרת שולח 'token'
+      localStorage.setItem("accessToken", accessToken || res.data.token); // Backup for older response format
       localStorage.setItem("refreshToken", refreshToken); 
       
       navigate("/");
-    } catch (error: any) {
-      console.error("Login error:", error.response?.data);
-      alert("Login Failed: " + (error.response?.data?.message || "Invalid Credentials"));
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
+      console.error("Login error:", err.response?.data);
+      alert("Login Failed: " + (err.response?.data?.message || "Invalid Credentials"));
     } finally {
       setLoading(false);
     }
