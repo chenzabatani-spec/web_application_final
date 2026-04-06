@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { IconButton, Menu, MenuItem, Box, Typography } from '@mui/material';
-import { Heart, MessageCircle, MoreVertical, Share2, Edit2, Trash2 } from 'lucide-react';
+import { Heart, MessageCircle, MoreVertical, Edit2, Trash2 } from 'lucide-react';
 import { 
   StyledPostCard, PostHeader, PostAuthorInfo, AuthorName, 
   PostDate, PostContentArea, PostBodyText, PostImage, PostActionsRow,
@@ -116,7 +116,6 @@ const PostCard = ({
           </IconButton>
           <CounterText>{commentsCount || 0}</CounterText>
         </ActionGroup>
-        <IconButton size="small"><Share2 size={20} color="#4a148c" /></IconButton>
       </PostActionsRow>
     </StyledPostCard>
   );
