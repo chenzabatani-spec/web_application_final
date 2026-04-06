@@ -1,8 +1,8 @@
 import { styled } from '@mui/material/styles';
-import { Box, Card, Button, Typography, Divider } from '@mui/material';
+import { Box, Card, Button, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 
-export const PageContainer = styled(Box)(({ theme }) => ({
+export const PageContainer = styled(Box)(() => ({
   minHeight: '100vh',
   display: 'flex',
   alignItems: 'center',
@@ -65,7 +65,7 @@ export const FooterContainer = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(4),
 }));
 
-export const FooterLink = styled(Link)(({ theme }) => ({
+export const FooterLink = styled(Link)(() => ({
   textDecoration: 'none',
   color: '#4a148c',
   fontWeight: 800,
