@@ -3,6 +3,7 @@ npm-debug.log*
 
 # Server ignores
 server/node_modules/
+server/dist/
 server/.env
 server/coverage
 # Server Public folder: Keep the folder, ignore the uploaded files
