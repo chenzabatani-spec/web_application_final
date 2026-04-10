@@ -4,7 +4,7 @@ npm-debug.log*
 # Server ignores
 server/node_modules/
 server/dist/
-server/.env
+server/.env*
 server/coverage
 # Server Public folder: Keep the folder, ignore the uploaded files
 server/public/*
@@ -13,4 +13,11 @@ server/public/*
 # Client ignores
 client/node_modules/
 client/dist/
-client/.env
+client/.env*
+
+# SSL Certificates
+*.pem
+*.csr
+*.key
+ssl/
+server/ssl/
