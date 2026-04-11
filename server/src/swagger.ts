@@ -6,7 +6,7 @@ const options = {
     definition: {
         openapi: "3.0.0",
         info: {
-            title: "Web Applications - Assignment2 REST API",
+            title: "NextStop REST API",
             version: "1.0.0",
             description: "REST server including authentication, posts, comments and users management.",
         },

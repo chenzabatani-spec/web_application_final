@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import { Box, Typography, TextField, Avatar, IconButton, Paper } from '@mui/material';
+import { Box, Typography, TextField, Paper } from '@mui/material';
 
 export const CommentsContainer = styled(Box)({
   display: 'flex',
