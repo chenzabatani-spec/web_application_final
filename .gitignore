@@ -21,3 +21,7 @@ client/.env*
 *.key
 ssl/
 server/ssl/
+
+# Compiled Jest config
+jest.config.js
+jest.config.js.map
