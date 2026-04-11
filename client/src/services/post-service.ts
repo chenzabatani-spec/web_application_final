@@ -40,20 +40,12 @@ const postService = {
 
   
   createPost: (formData: FormData) => {
-    return apiClient.post<Post>("/posts", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    return apiClient.post<Post>("/posts", formData);
   },
 
 
   updatePost: (id: string, formData: FormData) => {
-    return apiClient.put<Post>(`/posts/${id}`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    return apiClient.put<Post>(`/posts/${id}`, formData);
   },
 
 

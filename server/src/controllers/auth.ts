@@ -211,8 +211,9 @@ const googleLogin = async (req: Request, res: Response) => {
         user.refreshTokens.push(tokens.refreshToken);
         await user.save();
 
-        // Redirect to frontend with tokens and user info as query parameters
-        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        // Redirect to frontend with tokens and user info as query parameters (first URL if FRONTEND_URL is comma-separated)
+        const frontendUrl =
+            (process.env.FRONTEND_URL || 'http://localhost:5173').split(',')[0].trim();
         res.redirect(`${frontendUrl}/google-callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}&_id=${user._id}&username=${encodeURIComponent(user.username)}&email=${encodeURIComponent(user.email)}&photo=${encodeURIComponent(user.photo || "")}`);
     } catch (err) {
         console.error("Error in googleLogin:", err);

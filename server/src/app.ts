@@ -5,6 +5,7 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import type { CorsOptions } from 'cors';
 import postRouter from './routes/post_routes';
 import commentRouter from './routes/comment_routes';
 import authRouter from './routes/auth_routes';
@@ -12,6 +13,25 @@ import userRouter from './routes/user_routes';
 import { setupSwagger } from './swagger';
 import fileRouter from './routes/file_routes';
 import aiRoutes from './routes/ai_routes';
+
+/** Comma-separated FRONTEND_URL values are allowed (e.g. localhost + 127.0.0.1). */
+const normalizeOrigin = (o: string): string => o.trim().replace(/\/$/, '');
+
+const parseOrigins = (raw?: string): string[] =>
+    raw ? raw.split(',').map((s) => normalizeOrigin(s)).filter(Boolean) : [];
+
+const buildAllowedBrowserOrigins = (): Set<string> => {
+    const fromEnv = parseOrigins(process.env.FRONTEND_URL);
+    const devExtras =
+        process.env.NODE_ENV === 'production'
+            ? []
+            : [
+                  'http://localhost:5173',
+                  'http://127.0.0.1:5173',
+                  'http://[::1]:5173',
+              ];
+    return new Set([...fromEnv, ...devExtras].map(normalizeOrigin));
+};
 
 const initApp = (): Promise<Express> => {
     const promise = new Promise<Express>((resolve) => {
@@ -22,11 +42,33 @@ const initApp = (): Promise<Express> => {
         const url = process.env.DATABASE_URL;
         mongoose.connect(url as string).then(() => {
             const app = express();
-            app.use(cors({
-                origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-                methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-                credentials: true // Important for Cookies/Tokens later (Lecture 6)
-            }));
+            const allowedOrigins = buildAllowedBrowserOrigins();
+            const corsMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'];
+            const corsCredentials = true;
+
+            // In development, reflect the request Origin so CORS always matches (avoids subtle .env mismatches).
+            const corsOptions: CorsOptions =
+                process.env.NODE_ENV === 'production'
+                    ? {
+                          origin: (origin, callback) => {
+                              if (!origin) {
+                                  return callback(null, true);
+                              }
+                              if (allowedOrigins.has(normalizeOrigin(origin))) {
+                                  return callback(null, origin);
+                              }
+                              callback(null, false);
+                          },
+                          methods: corsMethods,
+                          credentials: corsCredentials,
+                      }
+                    : {
+                          origin: true,
+                          methods: corsMethods,
+                          credentials: corsCredentials,
+                      };
+
+            app.use(cors(corsOptions));
             app.use(bodyParser.json());
             app.use(bodyParser.urlencoded({ extended: true }));
             app.use('/public', express.static('public'));

@@ -26,11 +26,11 @@ const GoogleCallback = () => {
 
         // 2. Store user as a JSON string (matching standard Login.tsx behavior)
         localStorage.setItem("user", JSON.stringify(userObj));
-        
-        // 3. Store tokens (using "token" to match Login.tsx behavior)
-        localStorage.setItem("token", accessToken);
+
+        // 3. Same keys as Login.tsx / api-client (Bearer uses accessToken)
+        localStorage.setItem("accessToken", accessToken);
         if (refreshToken) {
-             localStorage.setItem("refreshToken", refreshToken);
+            localStorage.setItem("refreshToken", refreshToken);
         }
 
         // Redirect to home page after successful login
