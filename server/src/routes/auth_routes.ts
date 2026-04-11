@@ -223,7 +223,7 @@ router.get('/profile', authMiddleware, authController.getProfile as RequestHandl
  *     description: |
  *       ### ⚠️ **DO NOT USE "Try it out"**
  *       ### 🚀 To test the Google Authentication flow, open this link in a new tab:
- *       [http://localhost:3000/auth/google](http://localhost:3000/auth/google)
+ *       Open `GET /auth/google` on your API server (same base URL as in `API_BASE_URL` / `.env`) in a new tab.
  *       
  *       **Note:** After successful login, Google will redirect you to the frontend URL
  *       with `accessToken` and `refreshToken` as URL parameters.

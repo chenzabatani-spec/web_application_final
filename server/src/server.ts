@@ -1,11 +1,9 @@
+import './loadEnv';
 import initApp from './app';
-import dotenv from 'dotenv';
 import './common/passport';
 
-dotenv.config();
-
 initApp().then((app) => {
-    const port = process.env.PORT;
+    const port = process.env.PORT || 3000;
     app.listen(port, () => {
         console.log(`Server is running at http://localhost:${port}`);
     });
