@@ -52,6 +52,8 @@ const Home = () => {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isLoadingSearch, setIsLoadingSearch] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  
+  const [hasSearched, setHasSearched] = useState(false); 
 
   // Pagination and Feed States
   const [posts, setPosts] = useState<Post[]>([]);
@@ -68,7 +70,6 @@ const Home = () => {
     }
   }, [user, navigate]);
 
-  // Fetch posts and handle refresh after new post creation
   const fetchPosts = useCallback(async (pageNum: number) => {
     setIsLoadingPosts(true);
     try {
@@ -90,38 +91,44 @@ const Home = () => {
     if (user) fetchPosts(1);
   }, [user, fetchPosts]);
 
-  // Function called after post creation to refresh the feed
   const handlePostCreated = () => {
-    setPage(1); // Reset page to 1
-    fetchPosts(1); // Reload first page to show the new post
+    setPage(1); 
+    fetchPosts(1); 
   };
 
   const handleSearch = () => {
-    // If search query is empty, clear results and return
     if (!searchQuery.trim()) {
       setSearchResults([]);
       setSearchError(null);
+      setHasSearched(false);
       return;
     }
 
     setIsLoadingSearch(true);
     setSearchError(null);
     setSearchResults([]);
-    
+    setHasSearched(false);
 
     const { request } = aiService.searchSimilarPosts(searchQuery);
     
     request
       .then((res) => {
+        console.log("🔍 AI Server returned:", res.data.results);
+
         const threshold = parseFloat(import.meta.env.VITE_AI_SEARCH_THRESHOLD || "0.60");
         const filteredResults = res.data.results.filter((post: SearchResult) => post.score >= threshold);
+
+        console.log("✂️ Results after filter (above 60%):", filteredResults);
+        
         setSearchResults(filteredResults);
+        setHasSearched(true); // Tell the UI that a search has been performed, even if no results passed the threshold
         setIsLoadingSearch(false);
       })
       .catch((err) => {
         if (err.name === 'CanceledError') return;
         setSearchError("Search failed. Please try again.");
         setIsLoadingSearch(false);
+        setHasSearched(false);
       });
   };
 
@@ -129,6 +136,7 @@ const Home = () => {
     setSearchQuery("");
     setSearchResults([]);
     setSearchError(null);
+    setHasSearched(false);
   };
 
   const handleLoadMore = () => {
@@ -173,10 +181,10 @@ const Home = () => {
           onChange={(e) => {
             const value = e.target.value;
             setSearchQuery(value);
-            // If user clears the input, reset search results and error
             if (!value.trim()) {
               setSearchResults([]);
               setSearchError(null);
+              setHasSearched(false);
             }
           }}
           onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -199,14 +207,23 @@ const Home = () => {
 
         {searchError && <ErrorText>{searchError}</ErrorText>}
 
-        {searchResults.length > 0 ? (
+        {/* Search Results */}
+        {hasSearched && searchResults.length === 0 ? (
+          <EmptyFeedPaper sx={{ mt: 4 }}>
+            <EmptyFeedTitle>No magical matches found! 🪄</EmptyFeedTitle>
+            <EmptyFeedSubText>
+              We couldn't find a strong match for "{searchQuery}". Try phrasing it differently!
+            </EmptyFeedSubText>
+          </EmptyFeedPaper>
+
+        ) : searchResults.length > 0 ? (
           <SearchResultsContainer>
             {searchResults.map((post) => (
               <Box key={post.postId} sx={{ mb: 2 }}>
                 <PostCard
                   postId={post.postId}
                   currentUserId={user._id || ""}
-                  likes={[]} // לא רלוונטי לחיפוש
+                  likes={[]} 
                   username={post.username}
                   userPhoto={post.userPhoto}
                   title={post.title || ""}
@@ -218,13 +235,13 @@ const Home = () => {
                   onEdit={() => {}}
                   commentsCount={0}
                   onCommentsClick={() => {}}
-                  hideActions={true} // Hide like/edit/delete buttons in search results
+                  hideActions={true} 
                   aiScore={post.score * 100}
                 />
               </Box>
             ))}
           </SearchResultsContainer>
-          
+
         ) : (
           <Box>
             {posts.length > 0 ? (
@@ -240,7 +257,7 @@ const Home = () => {
                     title={post.title} 
                     text={post.content || ""}
                     postImage={post.photo ? `${API_BASE_URL}/public/${post.photo}` : undefined}
-                    createdAt={post.createdAt}
+                    createdAt={String(post.createdAt)}
                     isOwner={post.sender._id === user._id}
                     onDelete={() => handleDeletePost(post._id!)} 
                     onEdit={() => handleEditClick(post)}
@@ -274,7 +291,6 @@ const Home = () => {
           </Box>
         )}
 
-        {/* Modal render logic */}
         {isModalOpen && (
           <CreatePostModal 
             onClose={handleCloseModal} 
