@@ -2,12 +2,14 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import bcrypt from 'bcrypt';
 import User from '../models/user_model';
+import { SERVER_URL } from './config';
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID || '',
     clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-    callbackURL: "http://localhost:3000/auth/google/callback"
+    callbackURL: `${SERVER_URL}/auth/google/callback`
 }, 
+
 async (accessToken, refreshToken, profile, done) => {
     try {
 

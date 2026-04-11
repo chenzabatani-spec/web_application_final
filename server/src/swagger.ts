@@ -1,6 +1,7 @@
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { Express } from "express";
+import { SERVER_URL } from './common/config';
 
 const options = {
     definition: {
@@ -12,9 +13,7 @@ const options = {
         },
         servers: [
             {
-                url: process.env.NODE_ENV === 'production' 
-                    ? "https://node36.cs.colman.ac.il:4000" 
-                    : `http://localhost:${process.env.BACKEND_PORT || 4000}`,
+                url: SERVER_URL, // Use the SERVER_URL from config for consistency across the app
             },
         ],
         components: {

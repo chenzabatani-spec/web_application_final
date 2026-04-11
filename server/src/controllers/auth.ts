@@ -3,6 +3,7 @@ import { AuthRequest } from '../middleware/auth_middleware';
 import User from '../models/user_model';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { FRONTEND_URL } from '../common/config';
 
 // --- Helper Functions ---
 const sendError = (res: Response, message: string, code?: number) => {
@@ -212,8 +213,8 @@ const googleLogin = async (req: Request, res: Response) => {
         await user.save();
 
         // Redirect to frontend with tokens and user info as query parameters
-        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-        res.redirect(`${frontendUrl}/google-callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}&_id=${user._id}&username=${encodeURIComponent(user.username)}&email=${encodeURIComponent(user.email)}&photo=${encodeURIComponent(user.photo || "")}`);
+        res.redirect(`${FRONTEND_URL}/google-callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}&_id=${user._id}&username=${encodeURIComponent(user.username)}&email=${encodeURIComponent(user.email)}&photo=${encodeURIComponent(user.photo || "")}`);
+        
     } catch (err) {
         console.error("Error in googleLogin:", err);
         res.status(500).send("Error generating tokens during Google login");
