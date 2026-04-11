@@ -56,8 +56,14 @@ const Register = () => {
 
       await axios.post("http://localhost:3000/auth/register", formData);
       navigate("/login");
-    } catch (error: any) {
-      alert("Error: " + (error.response?.data?.message || "Registration failed"));
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Registration error:", error.response?.data);
+        alert("Registration Failed: " + (error.response?.data?.message || "Please try again"));
+      } else {
+        console.error("Unexpected error:", error);
+        alert("An unexpected error occurred. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
