@@ -84,6 +84,19 @@ const initApp = (): Promise<Express> => {
             app.use('/users', userRouter);
             app.use('/file', fileRouter);
             app.use('/ai', aiRoutes);
+            
+            // Serve React app in production
+            if (process.env.NODE_ENV === 'production') {
+                // The client build is located two levels up from the compiled server code (dist/server.js), hence ../../
+                const clientBuildPath = path.join(__dirname, '../../client/dist');
+                
+                app.use(express.static(clientBuildPath));
+
+                // For any route not handled by the above, serve index.html (for React Router)
+                app.get('*', (req, res) => {
+                    res.sendFile(path.join(clientBuildPath, 'index.html'));
+                });
+            }
 
             resolve(app);
         });
