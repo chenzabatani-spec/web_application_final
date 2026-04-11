@@ -5,6 +5,12 @@ export interface SearchResult {
   postId: string;
   text: string;
   score: number;
+  photo?: string;
+  title?: string;
+  content?: string;
+  username: string;
+  userPhoto?: string;
+  createdAt: Date | string;
 }
 
 export interface SearchResponse {

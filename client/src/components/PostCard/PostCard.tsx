@@ -21,6 +21,8 @@ interface PostCardProps {
   createdAt: string;
   isOwner?: boolean;
   commentsCount: number;
+  hideActions?: boolean;
+  aiScore?: number;
   onCommentsClick: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
@@ -28,7 +30,9 @@ interface PostCardProps {
 
 const PostCard = ({ 
   postId, currentUserId, likes = [],
-  username, userPhoto, title, text, postImage, createdAt, isOwner, commentsCount, onCommentsClick, onEdit, onDelete 
+  username, userPhoto, title, text, postImage, createdAt, isOwner, commentsCount, 
+  hideActions, aiScore,
+  onCommentsClick, onEdit, onDelete 
 }: PostCardProps) => {
   
   // Like State Management
@@ -37,17 +41,14 @@ const PostCard = ({
 
   // Like Button Handler - Optimistic UI Update
   const handleLikeClick = async () => {
-    // First, we optimistically update the UI
     const newIsLiked = !isLiked;
     setIsLiked(newIsLiked);
     setLikesCount(prev => newIsLiked ? prev + 1 : prev - 1);
 
-    // Then we call the API to toggle the like status on the server
     try {
       await postService.toggleLike(postId);
     } catch (error) {
       console.error("Failed to toggle like", error);
-      // If the API call fails, we revert the optimistic update
       setIsLiked(!newIsLiked);
       setLikesCount(prev => !newIsLiked ? prev + 1 : prev - 1);
     }
@@ -72,8 +73,15 @@ const PostCard = ({
           <PostDate>{displayDate}</PostDate>
         </PostAuthorInfo>
 
+        {/* --- The addition of the AI score in the search --- */}
+        {aiScore && (
+          <Typography sx={{ color: '#4a148c', fontWeight: 700, ml: 'auto', mr: isOwner ? 1 : 0 }}>
+            🎯 Match: {aiScore.toFixed(0)}%
+          </Typography>
+        )}
+
         {isOwner && (
-          <Box>
+          <Box ml={aiScore ? 0 : 'auto'}>
             <IconButton size="small" onClick={handleMenuClick}>
               <MoreVertical size={18} color="#9e9e9e" />
             </IconButton>
@@ -96,28 +104,31 @@ const PostCard = ({
 
       {postImage && <PostImage image={postImage} title="Post content" />}
 
-      <PostActionsRow>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <IconButton size="small" onClick={handleLikeClick}>
-            <Heart 
-              size={20} 
-              color={isLiked ? "#e91e63" : "#4a148c"} 
-              fill={isLiked ? "#e91e63" : "none"} 
-            />
-          </IconButton>
-          {likesCount > 0 && (
-            <Typography variant="body2" sx={{ color: isLiked ? "#e91e63" : "#4a148c", fontWeight: 600 }}>
-              {likesCount}
-            </Typography>
-          )}
-        </Box>
-        <ActionGroup>
-          <IconButton size="small" onClick={onCommentsClick}>
-            <MessageCircle size={20} color="#4a148c" />
-          </IconButton>
-          <CounterText>{commentsCount || 0}</CounterText>
-        </ActionGroup>
-      </PostActionsRow>
+      {/* --- The condition to hide action buttons if requested --- */}
+      {!hideActions && (
+        <PostActionsRow>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <IconButton size="small" onClick={handleLikeClick}>
+              <Heart 
+                size={20} 
+                color={isLiked ? "#e91e63" : "#4a148c"} 
+                fill={isLiked ? "#e91e63" : "none"} 
+              />
+            </IconButton>
+            {likesCount > 0 && (
+              <Typography variant="body2" sx={{ color: isLiked ? "#e91e63" : "#4a148c", fontWeight: 600 }}>
+                {likesCount}
+              </Typography>
+            )}
+          </Box>
+          <ActionGroup>
+            <IconButton size="small" onClick={onCommentsClick}>
+              <MessageCircle size={20} color="#4a148c" />
+            </IconButton>
+            <CounterText>{commentsCount || 0}</CounterText>
+          </ActionGroup>
+        </PostActionsRow>
+      )}
     </StyledPostCard>
   );
 };

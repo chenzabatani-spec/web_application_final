@@ -7,9 +7,6 @@ import {
   MainContainer, 
   AISearchField, 
   SearchResultsContainer,
-  ResultCard, 
-  ResultText,
-  MatchScore, 
   EmptyFeedPaper,
   EmptyFeedTitle,
   EmptyFeedSubText,
@@ -205,14 +202,29 @@ const Home = () => {
         {searchResults.length > 0 ? (
           <SearchResultsContainer>
             {searchResults.map((post) => (
-              <ResultCard key={post.postId}>
-                <ResultText>{post.text}</ResultText>
-                <MatchScore>
-                  🎯 Match: {(post.score * 100).toFixed(0)}%
-                </MatchScore>
-              </ResultCard>
+              <Box key={post.postId} sx={{ mb: 2 }}>
+                <PostCard
+                  postId={post.postId}
+                  currentUserId={user._id || ""}
+                  likes={[]} // לא רלוונטי לחיפוש
+                  username={post.username}
+                  userPhoto={post.userPhoto}
+                  title={post.title || ""}
+                  text={post.text}
+                  postImage={post.photo ? `${API_BASE_URL}/public/${post.photo}` : undefined}
+                  createdAt={String(post.createdAt)}
+                  isOwner={false}
+                  onDelete={() => {}}
+                  onEdit={() => {}}
+                  commentsCount={0}
+                  onCommentsClick={() => {}}
+                  hideActions={true} // Hide like/edit/delete buttons in search results
+                  aiScore={post.score * 100}
+                />
+              </Box>
             ))}
           </SearchResultsContainer>
+          
         ) : (
           <Box>
             {posts.length > 0 ? (

@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import mongoose from "mongoose";
 import Chunk from "../models/chunk_model";
+import PostModel from "../models/post_model";
 
 // Check if the API key is set, but don't crash if we are running Jest tests
 if (!process.env.GEMINI_API_KEY && process.env.NODE_ENV !== 'test') {
@@ -87,10 +88,10 @@ const searchSimilarPosts = async (queryText: string, topK: number = 3) => {
         // Turn the user's query into an embedding vector
         const queryEmbedding = await generateEmbedding(queryText);
 
-        // Retrieve all chunks from the database (in a real application, consider more efficient retrieval strategies)
+        // Retrieve all chunks from the database
         const allChunks = await Chunk.find();
 
-        // Calculate cosine similarity between the query embedding and each chunk's embedding
+        // Calculate cosine similarity
         const chunksWithScores = allChunks.map(chunk => {
             const score = calculateCosineSimilarity(queryEmbedding, chunk.embedding);
             return { 
@@ -100,11 +101,43 @@ const searchSimilarPosts = async (queryText: string, topK: number = 3) => {
             };
         });
 
-        // Sort the chunks by similarity score in descending order (most similar first, Top-K search)
+        // Sort the chunks by similarity score in descending order
         chunksWithScores.sort((a, b) => b.score - a.score);
 
-        // Return the top K most similar chunks
-        return chunksWithScores.slice(0, topK);
+        // Get the top K chunks
+        const topChunks = chunksWithScores.slice(0, topK);
+        
+        // Extract the unique post IDs from the top chunks
+        const postIds = topChunks.map(chunk => chunk.postId);
+        
+        // Fetch the full post details
+        const fullPosts = await PostModel.find({ _id: { $in: postIds } }).populate('sender', 'username photo');
+
+        // Enrich the top chunks with the full post details to send back to the frontend
+        const enrichedResults = topChunks.map(chunk => {
+            // Find the corresponding post details for this chunk
+            const postDetails = fullPosts.find(p => p._id.toString() === chunk.postId.toString()); 
+
+            type PopulatedSender = { username?: string; photo?: string };
+            type PostWithTime = { createdAt?: Date };
+
+            const sender = postDetails?.sender as unknown as PopulatedSender | undefined;
+            const postTime = postDetails as unknown as PostWithTime | undefined;
+
+            return {
+                score: chunk.score,
+                text: chunk.text, 
+                postId: chunk.postId,
+                photo: postDetails?.photo || "",
+                title: postDetails?.title || "Untitled",
+                content: postDetails?.content || "",
+                username: sender?.username || "Unknown User",
+                userPhoto: sender?.photo || "",
+                createdAt: postTime?.createdAt || new Date()
+            };
+        });
+
+        return enrichedResults;
 
     } catch (error) {
         console.error("Error during semantic search:", error);
