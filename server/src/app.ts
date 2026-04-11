@@ -93,7 +93,7 @@ const initApp = (): Promise<Express> => {
                 app.use(express.static(clientBuildPath));
 
                 // For any route not handled by the above, serve index.html (for React Router)
-                app.get('*', (req, res) => {
+                app.get(/.*/, (req, res) => {
                     res.sendFile(path.join(clientBuildPath, 'index.html'));
                 });
             }
