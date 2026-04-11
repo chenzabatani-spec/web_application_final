@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Avatar } from '@mui/material';
 import { MapPinned, Home as HomeIcon, PlusSquare, LogOut} from 'lucide-react';
 import { NavContainer, LogoWrapper, NavLinks, NavItem, UserPill } from './Navbar.styles';
+import { API_BASE_URL } from '../../services/api-client';
 
 interface NavbarProps {
   user: {
@@ -28,7 +29,7 @@ const Navbar: React.FC<NavbarProps> = ({ user, onNewPostClick, onHomeClick }) =>
 
   const displayName = user?.username || user?.name || "Guest";
   const imageUrl = user?.photo 
-    ? (user.photo.startsWith('http') ? user.photo : `http://localhost:3000/public/${user.photo.split('/').pop()}`) 
+    ? (user.photo.startsWith('http') ? user.photo : `${API_BASE_URL}/public/${user.photo.split('/').pop()}`) 
     : "";
 
   return (

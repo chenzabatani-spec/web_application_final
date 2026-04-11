@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { IconButton, CircularProgress, Typography } from '@mui/material';
 import { X, Camera } from 'lucide-react';
 import postService, { type Post } from '../../services/post-service';
+import { API_BASE_URL } from '../../services/api-client';
 import { 
   ModalOverlay, ModalContent, ImagePreviewBox, PreviewImage, SubmitPostBtn, ModalHeader, 
   ModalTitle, StyledTextField, PhotoPlaceholder,PreviewContainer,RemoveImageBtn 
@@ -18,7 +19,7 @@ const CreatePostModal = ({ onClose, onPostCreated, postToEdit }: CreatePostModal
   const [content, setContent] = useState(postToEdit?.content || '');
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState(
-    postToEdit?.photo ? `http://localhost:3000/public/${postToEdit.photo}` : ''
+    postToEdit?.photo ? `${API_BASE_URL}/public/${postToEdit.photo}` : ''
   );
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -27,7 +28,7 @@ const CreatePostModal = ({ onClose, onPostCreated, postToEdit }: CreatePostModal
     if (postToEdit) {
       setTitle(postToEdit.title || '');
       setContent(postToEdit.content || '');
-      setPreview(postToEdit.photo ? `http://localhost:3000/public/${postToEdit.photo}` : '');
+      setPreview(postToEdit.photo ? `${API_BASE_URL}/public/${postToEdit.photo}` : '');
     } else {
       setTitle('');
       setContent('');

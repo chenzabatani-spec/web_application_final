@@ -6,6 +6,7 @@ import { z } from "zod";
 import { TextField, InputAdornment, CircularProgress } from "@mui/material";
 import { User, Mail, Lock, Camera } from "lucide-react";
 import axios from 'axios';
+import { API_BASE_URL } from '../../services/api-client';
 import { 
   PageContainer, 
   RegisterCard, 
@@ -54,7 +55,7 @@ const Register = () => {
       formData.append("password", data.password);
       if (image) formData.append("photo", image);
 
-      await axios.post("http://localhost:3000/auth/register", formData);
+      await axios.post(`${API_BASE_URL}/auth/register`, formData);
       navigate("/login");
     } catch (error) {
       if (axios.isAxiosError(error)) {

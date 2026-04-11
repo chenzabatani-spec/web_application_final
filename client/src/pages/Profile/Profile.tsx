@@ -14,6 +14,7 @@ import {
   FeedSection, FeedTitle, StatTextWrapper 
 } from './Profile.styles';
 import CommentsModal from '../../components/CommentsModal/CommentsModal';
+import { API_BASE_URL } from '../../services/api-client';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -93,7 +94,7 @@ const Profile = () => {
 
   const displayName = currentUser.username || currentUser.name || "Traveler";
   const imageUrl = currentUser.photo 
-    ? (currentUser.photo.startsWith('http') ? currentUser.photo : `http://localhost:3000/public/${currentUser.photo.split('/').pop()}`) 
+    ? (currentUser.photo.startsWith('http') ? currentUser.photo : `${API_BASE_URL}/public/${currentUser.photo.split('/').pop()}`) 
     : "";
   const handleEditClick = (post: Post) => {
     setEditingPost(post);
@@ -181,7 +182,8 @@ const Profile = () => {
                   userPhoto={post.sender.photo}
                   title={post.title} 
                   text={post.content || ""}
-                  postImage={post.photo ? `http://localhost:3000/public/${post.photo.split('/').pop()}` : undefined}                  createdAt={post.createdAt}
+                  postImage={post.photo ? `${API_BASE_URL}/public/${post.photo.split('/').pop()}` : undefined}
+                  createdAt={post.createdAt}
                   isOwner={true}
                   onEdit={() => handleEditClick(post)}
                   onDelete={() => handleDeletePost(post._id!)}

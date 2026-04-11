@@ -6,6 +6,7 @@ import { z } from "zod";
 import { TextField, InputAdornment, CircularProgress, Divider, Typography } from "@mui/material";
 import { Mail, Lock } from "lucide-react";
 import axios from 'axios';
+import { API_BASE_URL } from '../../services/api-client';
 import { 
   LoginRoot, 
   StyledLoginCard, 
@@ -35,7 +36,7 @@ const Login = () => {
   const onSubmit = async (data: LoginFormData) => {
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:3000/auth/login", data);
+      const res = await axios.post(`${API_BASE_URL}/auth/login`, data);
       
       // Extracting tokens and user info from the response
       const { accessToken, refreshToken, user } = res.data;
@@ -56,7 +57,7 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:3000/auth/google";
+    window.location.href = `${API_BASE_URL}/auth/google`;
   };
 
   return (

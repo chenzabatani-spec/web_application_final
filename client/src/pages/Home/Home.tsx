@@ -18,6 +18,7 @@ import {
 
 import aiService, { type SearchResult } from "../../services/ai-service";
 import postService, { type Post } from "../../services/post-service";
+import { API_BASE_URL } from "../../services/api-client";
 import PostCard from "../../components/PostCard/PostCard"; 
 import CreatePostModal from "../../components/CreatePostModal/CreatePostModal";
 import Navbar from "../../components/Navbar/Navbar";
@@ -226,7 +227,7 @@ const Home = () => {
                     userPhoto={post.sender.photo}
                     title={post.title} 
                     text={post.content || ""}
-                    postImage={post.photo ? `http://localhost:3000/public/${post.photo}` : undefined}
+                    postImage={post.photo ? `${API_BASE_URL}/public/${post.photo}` : undefined}
                     createdAt={post.createdAt}
                     isOwner={post.sender._id === user._id}
                     onDelete={() => handleDeletePost(post._id!)} 

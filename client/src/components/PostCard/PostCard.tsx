@@ -7,6 +7,7 @@ import {
   PostTitle, StyledAvatar, ActionGroup,CounterText
 } from './PostCard.styles';
 import postService from '../../services/post-service';
+import { API_BASE_URL } from '../../services/api-client';
 
 interface PostCardProps {
   postId: string;
@@ -59,7 +60,7 @@ const PostCard = ({
   const handleMenuClose = () => setAnchorEl(null);
 
   const displayDate = createdAt ? new Date(createdAt).toLocaleString('he-IL') : '';
-  const authorImg = userPhoto?.startsWith('http') ? userPhoto : `http://localhost:3000/public/${userPhoto?.split('/').pop()}`;
+  const authorImg = userPhoto?.startsWith('http') ? userPhoto : `${API_BASE_URL}/public/${userPhoto?.split('/').pop()}`;
 
   return (
     <StyledPostCard elevation={0}>

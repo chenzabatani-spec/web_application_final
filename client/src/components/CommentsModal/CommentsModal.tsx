@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';import { Dialog, DialogTitle, IconButton, Avatar, CircularProgress, Box, Typography} from '@mui/material';
 import { X, Send } from 'lucide-react';
 import commentService, { type Comment } from '../../services/comment-service';
+import { API_BASE_URL } from '../../services/api-client';
 import { 
   CommentsContainer, CommentsList, CommentItem, 
   CommentBubble, CommentAuthor, CommentText, 
@@ -64,7 +65,7 @@ const CommentsModal = ({ open, onClose, postId, onCommentAdded }: CommentsModalP
             comments.map((comment) => (
               <CommentItem key={comment._id}>
                 <Avatar 
-                  src={comment.sender?.photo ? `http://localhost:3000/public/${comment.sender.photo}` : undefined}
+                  src={comment.sender?.photo ? `${API_BASE_URL}/public/${comment.sender.photo}` : undefined}
                   sx={{ width: 32, height: 32 }}
                 />
                 <CommentBubble elevation={0}>
