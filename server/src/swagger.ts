@@ -12,7 +12,9 @@ const options = {
         },
         servers: [
             {
-                url: "http://localhost:3000",
+                url: process.env.NODE_ENV === 'production' 
+                    ? "https://node36.cs.colman.ac.il:4000" 
+                    : `http://localhost:${process.env.BACKEND_PORT || 4000}`,
             },
         ],
         components: {
