@@ -5,6 +5,7 @@ npm-debug.log*
 server/node_modules/
 server/dist/
 server/.env*
+!server/.envprod.example
 server/coverage
 # Server Public folder: Keep the folder, ignore the uploaded files
 server/public/*

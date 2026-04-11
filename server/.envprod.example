@@ -1,0 +1,27 @@
+BACKEND_PORT=4000
+PORT=443
+NODE_ENV=production
+FRONTEND_URL=your_fe_url
+DATABASE_URL=your_db_url
+
+# Auth Secrets
+TOKEN_SECRET=put_a_long_random_string_here
+REFRESH_TOKEN_SECRET=put_a_long_random_string_here
+
+# Token Expiration
+TOKEN_EXPIRES=1h
+REFRESH_TOKEN_EXPIRES=7d
+
+# Google OAuth Credentials (Get these from Google Cloud Console)
+GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+GOOGLE_CALLBACK_URL=your_host/auth/google/callback
+
+# Gemini API Key 
+GEMINI_API_KEY=your_google_gemini_api_key_here
+
+# AI Configuration
+# Set this to true to enable mock AI mode (returns made-up embeddings instead of calling the Gemini API)
+USE_MOCK_AI=false
+AI_MODEL_NAME=gemini-embedding-001
+AI_VECTOR_DIMENSIONS=3072
