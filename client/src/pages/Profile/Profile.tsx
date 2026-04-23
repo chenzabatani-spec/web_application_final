@@ -13,6 +13,7 @@ import {
   StatsGlassBox, StatItem, StatValue, StatLabel,
   FeedSection, FeedTitle, StatTextWrapper 
 } from './Profile.styles';
+import CommentsModal from '../../components/CommentsModal/CommentsModal';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -31,6 +32,7 @@ const Profile = () => {
   const [editPhotoFile, setEditPhotoFile] = useState<File | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
+  const [commentPostId, setCommentPostId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!currentUser) navigate('/login');
@@ -179,11 +181,12 @@ const Profile = () => {
                   userPhoto={post.sender.photo}
                   title={post.title} 
                   text={post.content || ""}
-                  postImage={post.photo ? `http://localhost:3000/public/${post.photo.split('/').pop()}` : undefined}
-                  createdAt={post.createdAt}
+                  postImage={post.photo ? `http://localhost:3000/public/${post.photo.split('/').pop()}` : undefined}                  createdAt={post.createdAt}
                   isOwner={true}
                   onEdit={() => handleEditClick(post)}
                   onDelete={() => handleDeletePost(post._id!)}
+                  commentsCount={post.commentsCount || 0}
+                  onCommentsClick={() => setCommentPostId(post._id!)}
                 />
               ))}
             </Box>
@@ -237,6 +240,14 @@ const Profile = () => {
           onClose={handleCloseModal}
           onPostCreated={fetchUserPosts}
           postToEdit={editingPost}
+        />
+      )}
+      {commentPostId && (
+        <CommentsModal 
+          open={Boolean(commentPostId)} 
+          onClose={() => setCommentPostId(null)} 
+          postId={commentPostId}
+          onCommentAdded={fetchUserPosts} 
         />
       )}
     </ProfileRoot>

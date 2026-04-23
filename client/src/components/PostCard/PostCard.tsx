@@ -4,7 +4,7 @@ import { Heart, MessageCircle, MoreVertical, Share2, Edit2, Trash2 } from 'lucid
 import { 
   StyledPostCard, PostHeader, PostAuthorInfo, AuthorName, 
   PostDate, PostContentArea, PostBodyText, PostImage, PostActionsRow,
-  PostTitle, StyledAvatar 
+  PostTitle, StyledAvatar, ActionGroup,CounterText
 } from './PostCard.styles';
 import postService from '../../services/post-service';
 
@@ -19,13 +19,15 @@ interface PostCardProps {
   postImage?: string;
   createdAt: string;
   isOwner?: boolean;
+  commentsCount: number;
+  onCommentsClick: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
 }
 
 const PostCard = ({ 
   postId, currentUserId, likes = [],
-  username, userPhoto, title, text, postImage, createdAt, isOwner, onEdit, onDelete 
+  username, userPhoto, title, text, postImage, createdAt, isOwner, commentsCount, onCommentsClick, onEdit, onDelete 
 }: PostCardProps) => {
   
   // Like State Management
@@ -108,8 +110,12 @@ const PostCard = ({
             </Typography>
           )}
         </Box>
-
-        <IconButton size="small"><MessageCircle size={20} color="#4a148c" /></IconButton>
+        <ActionGroup>
+          <IconButton size="small" onClick={onCommentsClick}>
+            <MessageCircle size={20} color="#4a148c" />
+          </IconButton>
+          <CounterText>{commentsCount || 0}</CounterText>
+        </ActionGroup>
         <IconButton size="small"><Share2 size={20} color="#4a148c" /></IconButton>
       </PostActionsRow>
     </StyledPostCard>
