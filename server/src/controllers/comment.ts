@@ -39,15 +39,13 @@ class CommentController extends BaseController<IComment> {
 
     async getAll(req: Request, res: Response) {
         const filter = req.query;
-
-        // without postId we cannot get comments
         if (!filter.postId) {
             res.status(400).send("Missing parameter: postId is required");
             return;
         }
 
         try {
-            const comments = await this.model.find(filter);
+            const comments = await this.model.find(filter).populate('sender', 'username photo');
             res.send(comments);
         } catch (error) {
             res.status(400).send(error);
